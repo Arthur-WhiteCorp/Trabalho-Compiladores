@@ -15,7 +15,7 @@ data_definition: INT declarator  (',' declarator )* ';';
 
 declarator: Identifier;
 //Identifier: [a-zA-Z]+;
-IDENTIFIER: [a-zA-Z_]+[a-zA-Z0-9_]*; // identificadores das variáveis 
+Identifier: [a-zA-Z_]+[a-zA-Z0-9_]*; // identificadores das variáveis 
 
 
 function_definition : (INT)? function_header function_body;
@@ -26,9 +26,9 @@ parameter_declaration : INT declarator ( ',' (INT ) declarator )* ;
 // function_body : '{' (data_definition)*  (statement)* '}';
 function_body: '{' (data_definition)* (statement)* '}';
 
-function_body
-    : '{' (data_definition | statement)* '}'
-    ;
+// function_body
+//     : '{' (data_definition | statement)* '}'
+//     ;
 
 
 // statement
