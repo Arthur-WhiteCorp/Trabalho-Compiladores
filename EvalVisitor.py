@@ -27,36 +27,99 @@ class EvalVisitor(MiniCVisitor):
 
     # percorrer dict e analisar cada elemento do vetor
     for numero_linha, conteudo in dicio.items():
+
+      #ESQUERDA
       print(f'Linha {numero_linha}')
+      #todo mundo  que eh impar vai rodar
+      #o primeiro determina a direita
       #d = 5 + 20 + 30 * 2 + fat(5+2);
+      # print("primeiro cara a esquerda=",conteudo[0])
+      nome1 = conteudo[0]
+
+      print("Nome1=",nome1)
+
+      variableExists=False
+      for key in self.symbol_table:
+        if nome1 in self.symbol_table[key]:
+          variableExists = True
+          break
+      if not variableExists:
+        self.add_error_alt(f"3 - Error variable '{nome1}' not declared.", numero_linha)
+        continue
+
+      tipo1=None
+      for escopos in self.symbol_table:
+         for vars in self.symbol_table[escopos]:
+             if  nome1 ==  vars:
+                 tipo1 = self.symbol_table[escopos][vars]
+
+      print('Tipo1 = ',tipo1)
+
+      #DIREITA
+      #pula se for o primeiro ou se for simbolo terminal
       for item in conteudo:
         # vamos analisar os itens do vetor
-        # Verificando o identificador da  esquerda
-        jaDeuErro=False # flag indicando se já ocorreu algum erro
-        print("ESSE É A ESQUERDA")
-        nome1 = item # pega o primeiro unário, que é um identificador
-        print('Nome: ', nome1)
+        # Verificando o identificador da direita
         
-        variableExists = False
+        if item == nome1: 
+            continue
+        if item in ['=', '+', '-=', '*=', '/=', '%=', '==', '!=', '<=', '>=', '>', '<', '+', '-', '*', '/', '%']: 
+            continue
+        
+        #FUNCAO
+        tipo2=None
+        nome_intermediario=item
+        index_parenteses=nome_intermediario.find('(')
 
+        eh_funcao=False
+        #ele existe mas nao  eh o primeiro
+        if index_parenteses > 0:
+          eh_funcao=True
+
+        nome2=nome_intermediario.split('(')[0]
+
+        if eh_funcao and nome2 not in self.function_names:
+          self.add_error_alt(f"3 -  Error function '{nome2}' not declared",numero_linha)
+          continue
+        elif eh_funcao and nome2 in self.function_names:
+          tipo2=self.function_names[nome2]
+
+        print("Nome2=",nome2)
+
+        #LITERAL
+        if nome2.isdigit():
+          tipo2='int'
+        elif len(nome2) == 3 and nome2[0] == "'" and nome2[2] == "'" and ord(nome2[1]) <=127:
+          tipo2='char'
+
+        #VARIAVEL
+        variableExists=False
         for key in self.symbol_table:
-          if nome1 in self.symbol_table[key]:
-            variableExists = True
+          if nome2 in self.symbol_table[key]:
+            variableExists=True
             break
-        if not variableExists:
-          self.add_error_alt(f"3 - Error variable '{nome1}' not declared.", self.unarios[0][0])
-          jaDeuErro=True
-   
-    # tipo1=None
-    # for escopos in self.symbol_table:
-    #   for vars in self.symbol_table[escopos]:
-    #     if nome1 == vars:
-    #       tipo1 = self.symbol_table[escopos][vars]
-          
-    # lista=list(ctx.getChildren())
-    # self.contador+=1
-    # print(self.contador)
-    # print("Lista de filhos:", [i.getText() for i in lista])
+        if not variableExists and tipo2 is None:
+          self.add_error_alt(f"10- Error variable '{nome2} not declared'",numero_linha)
+          continue
+
+        for escopos in self.symbol_table:
+          for vars in self.symbol_table[escopos]:
+            if nome2 == vars:
+              tipo2 = self.symbol_table[escopos][vars]
+
+        print(f"Tipo 1: {tipo1} e Tipo 2: {tipo2}\n")
+
+        if tipo2 is not None and tipo1 != tipo2:
+          self.add_error_alt(f"14 - Error incompatible types '{tipo1}' and '{tipo2}'",numero_linha)
+        elif tipo2 is None:
+          self.add_error_alt(f"6 - Error unknow expression",numero_linha)
+
+
+    for k in self.erros:
+      print(k)
+
+
+
 
   def visitProgram(self, ctx: MiniCParser.ProgramContext):
     self.symbol_table[self.escope] = {}
