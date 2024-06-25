@@ -12,19 +12,7 @@ class EvalVisitor(MiniCVisitor):
     self.escope = "global"
     self.unarios = [] # vetor para armazenar os unários
 
-  # processamento dos unários
-  def __del__(self):
-    #print("Sera=?",self.unarios) # na esquerda a linha, na direita o conteudo
-
-    dicio = {}
-
-    for chave, valor in self.unarios:
-      if chave not in dicio:
-        dicio[chave] = []
-      dicio[chave].append(valor)
-
-    print('DICIO', dicio)
-
+  def avaliacaoLinhaInteira(self,dicio) :
     # percorrer dict e analisar cada elemento do vetor
     for numero_linha, conteudo in dicio.items():
 
@@ -61,10 +49,9 @@ class EvalVisitor(MiniCVisitor):
         # vamos analisar os itens do vetor
         # Verificando o identificador da direita
         
-        if item == nome1: 
-            continue
-        if item in ['=', '+', '-=', '*=', '/=', '%=', '==', '!=', '<=', '>=', '>', '<', '+', '-', '*', '/', '%']: 
-            continue
+        if item == nome1: continue
+        simbolos=['=', '+', '-=', '*=', '/=', '%=', '==', '!=', '<=', '>=', '>', '<', '+', '-', '*', '/', '%']
+        if item in simbolos: continue
         
         #FUNCAO
         tipo2=None
@@ -114,6 +101,21 @@ class EvalVisitor(MiniCVisitor):
         elif tipo2 is None:
           self.add_error_alt(f"6 - Error unknow expression",numero_linha)
 
+
+  # processamento dos unários
+  def __del__(self):
+    #print("Sera=?",self.unarios) # na esquerda a linha, na direita o conteudo
+
+    dicio = {}
+
+    for chave, valor in self.unarios:
+      if chave not in dicio:
+        dicio[chave] = []
+      dicio[chave].append(valor)
+
+    print('DICIO', dicio)
+
+    self.avaliacaoLinhaInteira(dicio)
 
     for k in self.erros:
       print(k)
