@@ -12,6 +12,20 @@ class EvalVisitor(MiniCVisitor):
     self.escope = "global"
     self.unarios = [] # vetor para armazenar os unários
 
+  def avaliacaoExpressao(self, numero_linha,tipo1,conteudo):
+      #(5/2+fatorial(n)-c)
+    for item in conteudo:
+        simbolos=['=', '+', '-=', '*=', '/=', '%=', '==', '!=', '<=', '>=', '>', '<', '+', '-', '*', '/', '%']
+        simbolos.append('(')
+        simbolos.append(')')
+        if item in simbolos: continue
+
+        #FUNCAO
+        tipo2=None
+        nome_intermediario=item
+        index_parenteses=nome_intermediario.find('(')
+      
+
   def avaliacaoLinhaInteira(self,dicio) :
     # percorrer dict e analisar cada elemento do vetor
     for numero_linha, conteudo in dicio.items():
@@ -62,6 +76,9 @@ class EvalVisitor(MiniCVisitor):
         #ele existe mas nao  eh o primeiro
         if index_parenteses > 0:
           eh_funcao=True
+        elif index_parenteses == 0:
+          print("Nome_expressao=",nome_intermediario)                                                
+          self.avaliacaoExpressao(numero_linha,tipo1,nome_intermediario)
 
         nome2=nome_intermediario.split('(')[0]
 
