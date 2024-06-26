@@ -164,8 +164,12 @@ class EvalVisitor(MiniCVisitor):
       size = len(l)
       for index in range(0,size,3):
         var_type = l[index].getText()
-        var_name = l[index+1].getText()        
-        self.symbol_table[self.escope][var_name] = var_type
+        var_name = l[index+1].getText()
+
+        if var_name in self.symbol_table[self.escope]:
+          self.add_error(f" 1- Error variable '{var_name}' already declared.", ctx.parentCtx.getChild(1))
+        else:  
+          self.symbol_table[self.escope][var_name] = var_type
 
     return super().visitFunction_body(ctx)
 
