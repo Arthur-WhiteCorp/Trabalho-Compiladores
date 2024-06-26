@@ -47,7 +47,6 @@ class EvalVisitor(MiniCVisitor):
           break
       if not variableExists:
         self.add_error_alt(f"3 - Error variable '{nome1}' not declared.", numero_linha)
-        continue
 
       tipo1=None
       for escopos in self.symbol_table:
@@ -113,7 +112,7 @@ class EvalVisitor(MiniCVisitor):
 
         print(f"Tipo 1: {tipo1} e Tipo 2: {tipo2}\n")
 
-        if tipo2 is not None and tipo1 != tipo2:
+        if tipo1 is not None and tipo2 is not None and tipo1 != tipo2:
           self.add_error_alt(f"14 - Error incompatible types '{tipo1}' and '{tipo2}'",numero_linha)
         elif tipo2 is None:
           self.add_error_alt(f"6 - Error unknow expression",numero_linha)
