@@ -2,7 +2,7 @@ import sys
 from antlr4 import *
 from MiniCLexer import MiniCLexer
 from MiniCParser import MiniCParser
-from EvalVisitor import EvalVisitor
+from EvalVisitor_arthur import EvalVisitor
 # Verifica se o usuário forneceu o nome do arquivo como argumento
 if len(sys.argv) != 2:
     print("Uso: python main.py nome_do_arquivo")
@@ -34,10 +34,11 @@ visitor = EvalVisitor()
 
 visitor.visit(tree)
 
+
 if visitor.erros:
     print("Semantic Errors:")
-    for erro in visitor.erros:
-        print(erro)
+#    for erro in visitor.erros:
+#        print(erro)
 else:
     print("No semantic errors.")
 
