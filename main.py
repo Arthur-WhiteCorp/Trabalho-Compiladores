@@ -35,13 +35,13 @@ visitor = EvalVisitor()
 visitor.visit(tree)
 
 
-if visitor.erros:
-    print("Semantic Errors:")
-#    for erro in visitor.erros:
-#        print(erro)
-else:
-    print("No semantic errors.")
+# if visitor.erros:
+#     print("Semantic Errors:")
+# #    for erro in visitor.erros:
+# #        print(erro)
+# else:
+#     print("No semantic errors.")
 
-print(tree.toStringTree(recog=parser))
+# print(tree.toStringTree(recog=parser))
 
 # Imprime a árvore de análise

@@ -42,7 +42,7 @@ class EvalVisitor(MiniCVisitor):
     #erros
     #quantidade de argumentos
     if numero_de_argumentos_chamada != numero_de_argumentos_declaracao:
-      self.add_error_alt(f"20 - Expected number '{numero_de_argumentos_declaracao}' of args but received '{numero_de_argumentos_chamada}' ",numero_linha)
+      self.add_error_alt(f"Expected '{numero_de_argumentos_declaracao}' args but received '{numero_de_argumentos_chamada}' in the '{nome_funcao}' function",numero_linha)
     else:
       eh_mesmo_tamanho = True
       
@@ -58,14 +58,14 @@ class EvalVisitor(MiniCVisitor):
     
     # del argumentos[0]
     # del argumentos[-1]
-    print("ARGUMENTOOOOOOOOOOOS: ", argumentos)
+#    print("ARGUMENTOOOOOOOOOOOS: ", argumentos)
     args_individuais = [a.strip() for arg in argumentos for a in arg.split(',')]
 
-    print("ARGS INDIVIDUAIS: ", args_individuais)
+#    print("ARGS INDIVIDUAIS: ", args_individuais)
 
     if eh_mesmo_tamanho:
       for i in range(len(args_individuais)):
-        print("Arg atual",args_individuais[i])
+#        print("Arg atual",args_individuais[i])
         # if arg.isdigit():
         #   print('Achei um numero inteiro: ', arg)
         # else:
@@ -73,22 +73,22 @@ class EvalVisitor(MiniCVisitor):
         tipo2 = None
         #FUNCAO
         nome_intermediario=args_individuais[i]
-        print('Nome intermediário: ', nome_intermediario)
+#        print('Nome intermediário: ', nome_intermediario)
         index_parenteses=nome_intermediario.find('(')
 
         eh_funcao=False
         #ele existe mas nao  eh o primeiro
         if index_parenteses > 0:
-          print("Detectou que eh funcao")
+#          print("Detectou que eh funcao")
           eh_funcao=True
         elif index_parenteses == 0:
           pass
 
         nome2=nome_intermediario.split('(')[0]
-        print("NOME2: ",nome2)
+#        print("NOME2: ",nome2)
 
         if eh_funcao and nome2 not in self.function_names:
-          self.add_error_alt(f"3 -  Error function '{nome2}' not declared",numero_linha)
+          self.add_error_alt(f"Error function '{nome2}' not declared",numero_linha)
           continue
         elif eh_funcao and nome2 in self.function_names:
           tipo2=self.function_names[nome2]
@@ -111,7 +111,7 @@ class EvalVisitor(MiniCVisitor):
             variableExists = True
             break
         if not variableExists and tipo2 is None:
-          self.add_error_alt(f"3 - Error variable '{nome2}' not declared.", numero_linha)
+          self.add_error_alt(f"Error variable '{nome2}' not declared.", numero_linha)
           continue
 
         
@@ -123,7 +123,7 @@ class EvalVisitor(MiniCVisitor):
 
         #ultima coisa
         if tipo2 != tipos_original[i]:
-          self.add_error_alt(f"21 - Expected type '{tipos_original[i]}' but received '{tipo2}'", numero_linha)
+          self.add_error_alt(f"Expected type '{tipos_original[i]}' but received '{tipo2}' in position {i+1} in function '{nome_funcao}'", numero_linha)
 
 
 
@@ -133,25 +133,52 @@ class EvalVisitor(MiniCVisitor):
 
       #ESQUERDA
 
-      #todo mundo  que eh impar vai rodar
-      #o primeiro determina a direita
-      #d = 5 + 20 + 30 * 2 + fat(5+2);
-      # print("primeiro cara a esquerda=",conteudo[0])
-      nome1 = conteudo[0]
-
-      variableExists=False
-      for key in self.symbol_table:
-        if nome1 in self.symbol_table[key]:
-          variableExists = True
-          break
-      if not variableExists:
-        self.add_error_alt(f"3 - Error variable '{nome1}' not declared.", numero_linha)
-
+      #----funcao
       tipo1=None
-      for escopos in self.symbol_table:
-         for vars in self.symbol_table[escopos]:
-             if  nome1 ==  vars:
-                 tipo1 = self.symbol_table[escopos][vars]
+      nome_intermediario=conteudo[0]
+      index_parenteses=nome_intermediario.find('(')
+
+      eh_funcao=False
+
+      if index_parenteses>0:
+        eh_funcao=True
+      elif index_parenteses==0:
+        #self.avaliacaoExpressao(numero_linha,)
+        #nao posso avaliar, esse return depende do tipo da funcao em que ele encontra
+        pass
+
+
+      nome1=nome_intermediario.split('(')[0]
+       
+      if  eh_funcao and nome1 not in self.function_names:
+        self.add_error_alt(f"Error function '{nome1}' not declared", numero_linha)
+      elif eh_funcao and nome1 in self.function_names:
+        tipo1=self.function_names[nome1]
+        self.avaliacaoFuncao(numero_linha,conteudo[0])
+
+
+      #--literal
+      if nome1.isdigit():
+        tipo1='int'
+      elif len(nome1) == 3 and nome1[0] == "'" and nome1[2] == "'" and ord(nome1[1]) <=127:
+        tipo1='char'
+
+    
+      # --- Variavel ---
+      if not eh_funcao:
+
+        variableExists=False
+        for key in self.symbol_table:
+          if nome1 in self.symbol_table[key]:
+            variableExists=True
+            break
+        if not variableExists and tipo1 is None:
+          self.add_error_alt(f"Error variable '{nome1} not declared'",numero_linha)
+
+        for escopos in self.symbol_table:
+          for vars in self.symbol_table[escopos]:
+            if nome1 == vars:
+              tipo1 = self.symbol_table[escopos][vars]
 
 
       #DIREITA
@@ -179,7 +206,7 @@ class EvalVisitor(MiniCVisitor):
         nome2=nome_intermediario.split('(')[0]
 
         if eh_funcao and nome2 not in self.function_names:
-          self.add_error_alt(f"3 -  Error function '{nome2}' not declared",numero_linha)
+          self.add_error_alt(f"Error function '{nome2}' not declared",numero_linha)
           continue
         elif eh_funcao and nome2 in self.function_names:
           tipo2=self.function_names[nome2]
@@ -202,7 +229,7 @@ class EvalVisitor(MiniCVisitor):
             variableExists=True
             break
         if not variableExists and tipo2 is None:
-          self.add_error_alt(f"10- Error variable '{nome2} not declared'",numero_linha)
+          self.add_error_alt(f"Error variable '{nome2} not declared'",numero_linha)
           continue
 
         for escopos in self.symbol_table:
@@ -213,9 +240,9 @@ class EvalVisitor(MiniCVisitor):
         #print(f"Tipo 1: {tipo1} e Tipo 2: {tipo2}\n")
 
         if tipo1 is not None and tipo2 is not None and tipo1 != tipo2:
-          self.add_error_alt(f"14 - Error incompatible types '{tipo1}' and '{tipo2}'",numero_linha)
+          self.add_error_alt(f"Error incompatible types '{tipo1}' and '{tipo2}'",numero_linha)
         elif tipo2 is None:
-          self.add_error_alt(f"6 - Error unknow expression",numero_linha)
+          self.add_error_alt(f"Error unknow expression",numero_linha)
 
 
   # processamento dos unários
@@ -229,14 +256,18 @@ class EvalVisitor(MiniCVisitor):
         dicio[chave] = []
       dicio[chave].append(valor)
 
-    print('DICIO', dicio)
+#    print('DICIO', dicio)
 
     self.avaliacaoLinhaInteira(dicio)
 
-    for k in self.erros:
-      print(k)
+    if self.erros:
+      print("Semantic Errors:")
+      for k in self.erros:
+        print(k)
+    else:
+      print("No semantic errors")
 
-    print(self.symbol_table)
+    # print(self.symbol_table)
 
 
   def visitProgram(self, ctx: MiniCParser.ProgramContext):
@@ -272,7 +303,7 @@ class EvalVisitor(MiniCVisitor):
         lista_argumentos.append(var_type)
 
         if var_name in self.symbol_table[self.escope]:
-          self.add_error(f" 1- Error variable '{var_name}' already declared.", ctx.parentCtx.getChild(1))
+          self.add_error(f" Error variable '{var_name}' already declared.", ctx.parentCtx.getChild(1))
         else:  
           self.symbol_table[self.escope][var_name] = var_type
           
@@ -288,7 +319,7 @@ class EvalVisitor(MiniCVisitor):
     nome_funcao = ctx.getChild(1).getText().split('(')[0]
 
     if nome_funcao in self.symbol_table:
-      self.add_error(f" 1- Error function '{nome_funcao}' already declared.", ctx)
+      self.add_error(f"Error function '{nome_funcao}' already declared.", ctx)
     else:
       self.function_names[nome_funcao] = tipo_funcao
     return self.visitChildren(ctx)
@@ -305,14 +336,14 @@ class EvalVisitor(MiniCVisitor):
       for i in range(1, len(l), 2):
         nome = l[i].getText()
         if nome in self.symbol_table["global"]:
-          self.add_error(f" 1- Error variable '{nome}' already declared.", ctx)
+          self.add_error(f"Error variable '{nome}' already declared.", ctx)
         else:
           self.symbol_table["global"][nome] = tipo
     else:
       for i in range(1, len(l), 2):
         nome = l[i].getText()
         if nome in self.symbol_table[self.escope]:
-          self.add_error(f"2 -Error variable '{nome}' already declared.", ctx)
+          self.add_error(f"Error variable '{nome}' already declared.", ctx)
         else:
           self.symbol_table[self.escope][nome] = tipo
     return self.visitChildren(ctx)
@@ -328,7 +359,7 @@ class EvalVisitor(MiniCVisitor):
       if str(l[i].__class__.__name__) == "BinaryContext" and l[i].getChildCount() > 1:
         # print("Expressão Binária: ")
         l2 = l[i]
-        print(l2.getText())
+#        print(l2.getText())
         self.visit(l2)
       else:
         # print('Expressão Unária: ')
