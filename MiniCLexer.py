@@ -1,4 +1,4 @@
-# Generated from MiniC.g by ANTLR 4.13.1
+# Generated from MiniC.g4 by ANTLR 4.13.1
 from antlr4 import *
 from io import StringIO
 import sys
@@ -163,7 +163,7 @@ class MiniCLexer(Lexer):
                   "Identifier", "CONSTANT_INT", "CONSTANT_CHAR", "COMMENT", 
                   "WS" ]
 
-    grammarFileName = "MiniC.g"
+    grammarFileName = "MiniC.g4"
 
     def __init__(self, input=None, output:TextIO = sys.stdout):
         super().__init__(input, output)

@@ -1,4 +1,4 @@
-# Generated from MiniC.g by ANTLR 4.13.1
+# Generated from MiniC.g4 by ANTLR 4.13.1
 # encoding: utf-8
 from antlr4 import *
 from io import StringIO
@@ -98,7 +98,7 @@ def serializedATN():
 
 class MiniCParser ( Parser ):
 
-    grammarFileName = "MiniC.g"
+    grammarFileName = "MiniC.g4"
 
     atn = ATNDeserializer().deserialize(serializedATN())
 

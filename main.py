@@ -42,6 +42,6 @@ if visitor.erros:
 else:
     print("No semantic errors.")
 
-# print(tree.toStringTree(recog=parser))
+print(tree.toStringTree(recog=parser))
 
 # Imprime a árvore de análise

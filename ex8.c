@@ -1,19 +1,16 @@
-int factorial(int n) {
+//factorial: [int,char]
+
+int teste(int char){
+
+}
+
+int factorial(int n, char a) {
+  char ok;
   if (n <= 1) {
+    n = factorial('5');
     return 1;
   } else {
-    return n * factorial(n - 1);
+    return n * factorial('a', teste());
   }
-}
-//barra
-int integer(){
   
-}
-
-int tompero(int n){
-  int result;
-  //result=(5+2);
-  char c ;
-
-  result=integer();
 }

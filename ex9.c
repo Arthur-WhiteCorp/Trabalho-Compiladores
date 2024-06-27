@@ -1,16 +1,16 @@
-int a,b,c,d;
-char e;
+//factorial: [int,char]
 
-int soma(int a, int b, int c, int d){
-    return (a+b+c+d);
+int teste(){
+
 }
 
-int funcao(){
-    a = 1;
-    b = 2 + 9 * a;
-    c = 3;
-    d = 4;
-    e = 'a'
-
-    return a + b - c * d + soma(a, b, c, d) - e;
+int factorial(int n, char a) {
+  char ok;
+  if (n <= 1) {
+    n = factorial('5');
+    return 1;
+  } else {
+    return n * factorial('a', teste());
+  }
+  
 }
