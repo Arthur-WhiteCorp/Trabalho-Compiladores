@@ -1,6 +1,31 @@
 from MiniCVisitor import MiniCVisitor
 from MiniCParser import MiniCParser
 
+class AddressOutput():
+  def __init__(self):
+    self.translation = ""
+
+  def addDataDefinition(self,dataDef):
+    variables = dataDef.split(",")
+    text = variables[0]
+    listSize = len(variables)
+    if text.find("int") == 0:
+      variables[0] = text[3:]
+      lasVarSize = len(variables[listSize-1])
+      variables[listSize-1] = variables[listSize-1][0:lasVarSize-1] 
+      type = text[0:3]
+    elif text.find("char") == 0:
+      variables[0] = text[4:]
+      lasVarSize = len(variables[listSize-1])
+      variables[listSize-1] = variables[listSize-1][0:lasVarSize-1]
+      type = text[0:4]      
+   
+    for var in variables:
+      self.translation += type + " "
+      self.translation += var + ";"
+      self.translation += "\n"
+    print(self.translation)
+
 class EvalVisitor(MiniCVisitor):
 
   def __init__(self):
@@ -12,6 +37,7 @@ class EvalVisitor(MiniCVisitor):
     self.erros = []
     self.escope = "global"
     self.unarios = [] # vetor para armazenar os unários
+    self.translator = AddressOutput()
 
   def avaliacaoExpressao(self, numero_linha,tipo1,conteudo):
       #(5/2+f(n)-c)
@@ -346,6 +372,8 @@ class EvalVisitor(MiniCVisitor):
           self.add_error(f"Error variable '{nome}' already declared.", ctx)
         else:
           self.symbol_table[self.escope][nome] = tipo
+    text = ctx.getText()
+    self.translator.addDataDefinition(text)
     return self.visitChildren(ctx)
   
   # Verificar compatibilidade dos tipos nas expressões

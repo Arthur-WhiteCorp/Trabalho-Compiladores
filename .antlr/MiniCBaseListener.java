@@ -1,4 +1,4 @@
-// Generated from c:/Users/Neon/Desktop/falculdade/compiladores/MiniCCompiler/Trabalho-Compiladores/MiniC.g by ANTLR 4.13.1
+// Generated from c:/Users/Neon/Desktop/falculdade/compiladores/3 Adress/Trabalho-Compiladores/MiniC.g by ANTLR 4.13.1
 
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.ErrorNode;
