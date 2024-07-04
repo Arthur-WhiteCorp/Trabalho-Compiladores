@@ -5,6 +5,7 @@ class AddressOutput():
   def __init__(self):
     self.translation = ""
     self.count = 1
+
   def addDataDefinition(self,dataDef):
     variables = dataDef.split(",")
     text = variables[0]
@@ -24,31 +25,56 @@ class AddressOutput():
       self.translation += type + " "
       self.translation += var + ";"
       self.translation += "\n"
-    print(self.translation)
-  def addBinary(self,lineVector:list,lineNum:int):
+
+  def addBinary(self,lineVector:list,lineNum:int,ehIf=False,ehWhile=False, ehReturn=False):
     myLine = []
     symbols = ['=', '+', '-=', '*=', '/=', '%=', '==', '!=', '<=', '>=', '>', '<', '+', '-', '*', '/', '%']
-    translation = ""
     for item in lineVector:
       if item[0] == lineNum:
         myLine.append(item)
     finalVar = myLine[0][1]
-    size = len(myLine) 
-   
-    for operando in range(3,size,2):
-      pos1 = myLine[operando-1][1]
-      pos2 = myLine[operando][1]
-      pos3 = myLine[operando+1][1]
-      if operando == 3:    
-        translation += 'T' + str(self.count) +" " +'=' + " " + pos1 + " " + pos2 + " " + pos3 + "\n"
-        self.count += 1
-      elif operando+2 < size:
-        translation += 'T' + str(self.count)+ " " +'=' + " " + 'T' + str(self.count-1)+ " " + pos2 + " " + pos3 + "\n"
-        self.count += 1
+    size = len(myLine)
+    if not ehIf and not ehWhile: 
+      if size > 5:
+        for operando in range(3,size,2):
+          pos1 = myLine[operando-1][1]
+          pos2 = myLine[operando][1]
+          pos3 = myLine[operando+1][1]
+          
+          if operando == 3:    
+            self.translation += 'T' + str(self.count) +" " +'=' + " " + pos1 + " " + pos2 + " " + pos3 + ";\n"
+            self.count += 1
+          elif operando+2 < size:
+            self.translation += 'T' + str(self.count)+ " " +'=' + " " + 'T' + str(self.count-1)+ " " + pos2 + " " + pos3 + ";\n"
+            self.count += 1
+          else:
+            self.translation += finalVar+ " " + myLine[1][1] + " " + 'T' + str(self.count-1)+ " " + pos2 + " " + pos3 + ";\n"
+      elif size == 5:     
+        self.translation += finalVar
+        pos1 = myLine[2][1]
+        pos2 = myLine[3][1]
+        pos3 = myLine[4][1]
+        self.translation += " " + myLine[1][1]+ " " + pos1 + " " + pos2 + " " + pos3 + ";\n"
       else:
-        translation += finalVar+ " " + myLine[1][1] + " " + 'T' + str(self.count-1)+ " " + pos2 + " " + pos3 + "\n"
-    print(myLine)
-    print(translation)
+        self.translation += finalVar
+        pos1 = myLine[2][1] 
+        self.translation += " " + myLine[1][1]+ " " + pos1 + ";\n"
+    elif ehIf:
+      pass
+    elif ehWhile:
+      print("while")     
+    print(self.translation)
+
+    def openIf(self,lineVector:list,lineNum:int):
+      print("abrir")
+
+    def closeIf(self,lineVector:list,lineNum:int):
+      print("fechar")
+
+
+
+
+
 class EvalVisitor(MiniCVisitor):
 
   def __init__(self):
@@ -421,9 +447,25 @@ class EvalVisitor(MiniCVisitor):
         copia= self.unarios.copy()
       self.binaryControler -= 1
     if self.binaryControler == 0:
-      self.translator.addBinary(copia,ctx.start.line) 
-      
+      if ctx.parentCtx.parentCtx.getChild(0).getText() == 'if':
+        self.translator.addBinary(copia,ctx.start.line,ehIf=True) 
+      else:
+        self.translator.addBinary(copia,ctx.start.line)
       # return alguma ;
+  def visitStatement(self, ctx: MiniCParser.StatementContext):
+    print("---visitou statement")
+    l = list(ctx.getChildren())
+    
+    #for i,j in enumerate(l):
+    #  print(i,j.getText())
+
+    if l[0].getText() == 'if':
+     
+      self.visit(l[2])
+      self.visit(l[4])
+      
+    else:
+      return self.visitChildren(ctx)
 
   
 
