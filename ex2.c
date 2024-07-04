@@ -1,11 +1,13 @@
-int d,e,f;
-char c;
+int batata,e,f;
+char caue;
 
 int funcao(){
-	d = 5 + 20 + 30 * 2 + fat(5+2) + f(n);
-	e*=2;
-	//e = 5;
-	//f = -1;
+	batata *= 5 + 20 + 30 * 5;
+	e -= f + batata * 3;
+	//(5,d) (5,5) (5,+), (8,'2')
+
+	caue='2';
+	//(8,'2')
 }
 
 

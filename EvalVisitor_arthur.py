@@ -4,7 +4,7 @@ from MiniCParser import MiniCParser
 class AddressOutput():
   def __init__(self):
     self.translation = ""
-
+    self.count = 1
   def addDataDefinition(self,dataDef):
     variables = dataDef.split(",")
     text = variables[0]
@@ -25,7 +25,30 @@ class AddressOutput():
       self.translation += var + ";"
       self.translation += "\n"
     print(self.translation)
-
+  def addBinary(self,lineVector:list,lineNum:int):
+    myLine = []
+    symbols = ['=', '+', '-=', '*=', '/=', '%=', '==', '!=', '<=', '>=', '>', '<', '+', '-', '*', '/', '%']
+    translation = ""
+    for item in lineVector:
+      if item[0] == lineNum:
+        myLine.append(item)
+    finalVar = myLine[0][1]
+    size = len(myLine) 
+   
+    for operando in range(3,size,2):
+      pos1 = myLine[operando-1][1]
+      pos2 = myLine[operando][1]
+      pos3 = myLine[operando+1][1]
+      if operando == 3:    
+        translation += 'T' + str(self.count) +" " +'=' + " " + pos1 + " " + pos2 + " " + pos3 + "\n"
+        self.count += 1
+      elif operando+2 < size:
+        translation += 'T' + str(self.count)+ " " +'=' + " " + 'T' + str(self.count-1)+ " " + pos2 + " " + pos3 + "\n"
+        self.count += 1
+      else:
+        translation += finalVar+ " " + myLine[1][1] + " " + 'T' + str(self.count-1)+ " " + pos2 + " " + pos3 + "\n"
+    print(myLine)
+    print(translation)
 class EvalVisitor(MiniCVisitor):
 
   def __init__(self):
@@ -38,7 +61,7 @@ class EvalVisitor(MiniCVisitor):
     self.escope = "global"
     self.unarios = [] # vetor para armazenar os unários
     self.translator = AddressOutput()
-
+    self.binaryControler = 0
   def avaliacaoExpressao(self, numero_linha,tipo1,conteudo):
       #(5/2+f(n)-c)
     for item in conteudo:
@@ -382,22 +405,25 @@ class EvalVisitor(MiniCVisitor):
     l = list(ctx.getChildren())
     # print([i.getText() for i in l])
     # print('Contexto: ', str(ctx.__class__.__name__))
-    
     for i in range(len(l)):
+      self.binaryControler += 1
       if str(l[i].__class__.__name__) == "BinaryContext" and l[i].getChildCount() > 1:
         # print("Expressão Binária: ")
         l2 = l[i]
 #        print(l2.getText())
         self.visit(l2)
+        
       else:
         # print('Expressão Unária: ')
         l2 = l[i]
         # print(l2.getText())
-        
         self.unarios.append((ctx.start.line,l2.getText())) # o vetor tem tuplas com a informação da linha
-
-     
-  
+        copia= self.unarios.copy()
+      self.binaryControler -= 1
+    if self.binaryControler == 0:
+      self.translator.addBinary(copia,ctx.start.line) 
+      
+      # return alguma ;
 
   
 
