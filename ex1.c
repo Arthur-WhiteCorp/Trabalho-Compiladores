@@ -15,4 +15,4 @@ int main(){
 //erros que a gente nao pega:
   //expressao
   //tipo de return
-  //nao pode ter nenhuma variavel com o mesmo nome de uma funcao
+  //nao pode ter nenhuma variavel com o mesmo nome de uma funcao *

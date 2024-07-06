@@ -5,6 +5,10 @@ class AddressOutput():
   def __init__(self):
     self.translation = ""
     self.count = 1
+    self.if_count = 1 # controla o numero das labels
+    self.while_count = 1
+    self.while_start=1
+    self.while_end=1
 
   def addDataDefinition(self,dataDef):
     variables = dataDef.split(",")
@@ -23,8 +27,50 @@ class AddressOutput():
    
     for var in variables:
       self.translation += type + " "
-      self.translation += var + ";"
+      self.translation += var
       self.translation += "\n"
+
+  def openIf(self,lineVector:list,lineNum:int):
+    #symbols = ['=', '+', '-=', '*=', '/=', '%=', '==', '!=', '<=', '>=', '>', '<', '+', '-', '*', '/', '%']
+    finalVar = lineVector[0][1]
+    #size = len(lineVector)
+    
+    
+    pos1 = lineVector[2][1] 
+    self.translation += "if " +  finalVar + " " + lineVector[1][1] + " " + pos1  + " goto L"+str(self.if_count) + "\n"
+    self.if_count += 1
+    self.translation += "goto L"+str(self.if_count) + "\n"  
+    self.translation += "L"+str(self.if_count-1) + ": " 
+
+  def closeIf(self,ehElse = False):
+    if not ehElse:
+      self.translation += "L" + str(self.if_count) + ":\n" 
+    else:
+      self.if_count +=1
+      self.translation += "L" + str(self.if_count) + ":\n"
+
+
+
+  def openWhile(self,lineVector:list,lineNum:int):
+    #symbols = ['=', '+', '-=', '*=', '/=', '%=', '==', '!=', '<=', '>=', '>', '<', '+', '-', '*', '/', '%']
+    finalVar = lineVector[0][1]
+    #size = len(lineVector)
+    
+    
+    pos1 = lineVector[2][1] 
+    self.translation += "start"+ str(self.while_start) +": "+ "if " +  finalVar + " " + lineVector[1][1] + " " + pos1  + " goto E"+str(self.while_count) + "\n"
+    self.while_count += 1
+    self.translation += "goto E"+str(self.while_count) + "\n"  
+    self.translation += "E"+str(self.while_count-1) + ": " 
+  
+  
+
+  def closeWhile(self):
+    self.translation += "E" + str(self.while_count) + ":\n" 
+    self.translation += "goto start" +str(self.while_start) +"\n"
+    self.while_start+=1
+
+
 
   def addBinary(self,lineVector:list,lineNum:int,ehIf=False,ehWhile=False, ehReturn=False):
     myLine = []
@@ -42,37 +88,30 @@ class AddressOutput():
           pos3 = myLine[operando+1][1]
           
           if operando == 3:    
-            self.translation += 'T' + str(self.count) +" " +'=' + " " + pos1 + " " + pos2 + " " + pos3 + ";\n"
+            self.translation += 'T' + str(self.count) +" " +'=' + " " + pos1 + " " + pos2 + " " + pos3 + "\n"
             self.count += 1
           elif operando+2 < size:
-            self.translation += 'T' + str(self.count)+ " " +'=' + " " + 'T' + str(self.count-1)+ " " + pos2 + " " + pos3 + ";\n"
+            self.translation += 'T' + str(self.count)+ " " +'=' + " " + 'T' + str(self.count-1)+ " " + pos2 + " " + pos3 + "\n"
             self.count += 1
           else:
-            self.translation += finalVar+ " " + myLine[1][1] + " " + 'T' + str(self.count-1)+ " " + pos2 + " " + pos3 + ";\n"
+            self.translation += finalVar+ " " + myLine[1][1] + " " + 'T' + str(self.count-1)+ " " + pos2 + " " + pos3 + "\n"
       elif size == 5:     
         self.translation += finalVar
         pos1 = myLine[2][1]
         pos2 = myLine[3][1]
         pos3 = myLine[4][1]
-        self.translation += " " + myLine[1][1]+ " " + pos1 + " " + pos2 + " " + pos3 + ";\n"
+        self.translation += " " + myLine[1][1]+ " " + pos1 + " " + pos2 + " " + pos3 + "\n"
       else:
         self.translation += finalVar
-        pos1 = myLine[2][1] 
-        self.translation += " " + myLine[1][1]+ " " + pos1 + ";\n"
+        try:
+          pos1 = myLine[2][1] 
+        except IndexError:
+          print(f"Error: Not enough elements in line: {myLine}")
+        self.translation += " " + myLine[1][1]+ " " + pos1 + "\n"
     elif ehIf:
-      pass
+      self.openIf(myLine,lineNum)
     elif ehWhile:
-      print("while")     
-    print(self.translation)
-
-    def openIf(self,lineVector:list,lineNum:int):
-      print("abrir")
-
-    def closeIf(self,lineVector:list,lineNum:int):
-      print("fechar")
-
-
-
+      self.openWhile(myLine, lineNum)    # colocar openWhile
 
 
 class EvalVisitor(MiniCVisitor):
@@ -107,7 +146,14 @@ class EvalVisitor(MiniCVisitor):
     #chamada
     eh_mesmo_tamanho = False
     nome_funcao = chamada_da_funcao.split('(')[0]
-    numero_de_argumentos_chamada=chamada_da_funcao.count(',')+1
+
+    lista_argumentos = chamada_da_funcao.split('(')[1]
+    numero_de_argumentos_chamada=0
+
+    if len(lista_argumentos) > 1: #significa que tem algo dentro dos parenteses
+      numero_de_argumentos_chamada=chamada_da_funcao.count(',')+1
+
+    #print("Numero de argumentos da chamada",numero_de_argumentos_chamada)
 
 
     #declaracao
@@ -138,7 +184,7 @@ class EvalVisitor(MiniCVisitor):
 
 #    print("ARGS INDIVIDUAIS: ", args_individuais)
 
-    if eh_mesmo_tamanho:
+    if eh_mesmo_tamanho and len(tipos_original) > 0:
       for i in range(len(args_individuais)):
 #        print("Arg atual",args_individuais[i])
         # if arg.isdigit():
@@ -185,9 +231,17 @@ class EvalVisitor(MiniCVisitor):
           if nome2 in self.symbol_table[key]:
             variableExists = True
             break
-        if not variableExists and tipo2 is None:
-          self.add_error_alt(f"Error variable '{nome2}' not declared.", numero_linha)
+        #print("Esse é o nome2 : ", nome2)
+        #print(type(nome2))
+        #print(len(nome2))
+        
+        if not variableExists and tipo2 is None and len(lista_argumentos)>1: #consertar para nome2 nao vazio  nao cair em variavel nao declarada
+          self.add_error_alt(f"Error variable aaa '{nome2}' not declared.", numero_linha)
+          
           continue
+      
+        
+
 
         
         for escopos in self.symbol_table:
@@ -196,7 +250,10 @@ class EvalVisitor(MiniCVisitor):
               tipo2 = self.symbol_table[escopos][vars]
           
 
-        #ultima coisa
+        # ultima coisa
+        # print(f'Esse é o i {i}, e esse é o i+1 {i+1}')
+        #print("antes do erro")
+        #print('tipos original i: ', tipos_original[i])
         if tipo2 != tipos_original[i]:
           self.add_error_alt(f"Expected type '{tipos_original[i]}' but received '{tipo2}' in position {i+1} in function '{nome_funcao}'", numero_linha)
 
@@ -323,7 +380,7 @@ class EvalVisitor(MiniCVisitor):
   # processamento dos unários
   def __del__(self):
     #print("Sera=?",self.unarios) # na esquerda a linha, na direita o conteudo
-
+    print(self.translator.translation)
     dicio = {}
 
     for chave, valor in self.unarios:
@@ -449,23 +506,59 @@ class EvalVisitor(MiniCVisitor):
     if self.binaryControler == 0:
       if ctx.parentCtx.parentCtx.getChild(0).getText() == 'if':
         self.translator.addBinary(copia,ctx.start.line,ehIf=True) 
+      elif ctx.parentCtx.parentCtx.getChild(0).getText() == 'while':
+        self.translator.addBinary(copia,ctx.start.line,ehIf=False,ehWhile=True) 
+      elif ctx.parentCtx.parentCtx.getChild(0).getText() == 'return' or ctx.parentCtx.parentCtx.getChild(0).getText() == 'break' or ctx.parentCtx.parentCtx.getChild(0).getText() == 'continue':
+        pass
       else:
         self.translator.addBinary(copia,ctx.start.line)
       # return alguma ;
   def visitStatement(self, ctx: MiniCParser.StatementContext):
-    print("---visitou statement")
     l = list(ctx.getChildren())
     
-    #for i,j in enumerate(l):
-    #  print(i,j.getText())
+    for i,j in enumerate(l):
+      print(i,j.getText())
 
-    if l[0].getText() == 'if':
-     
+    if l[0].getText() == 'while':
+
+      print("É whileeeeeeeeeeeee")
+
+      print('l2: ', l[2].getText())
+      self.visit(l[2])
+      print('l4: ', l[4].getText())
+      self.visit(l[4])
+
+
+
+      # self.translator.while_count += 1
+
+      # start_label = "E" + str(self.translator.while_count) # label inicio
+      # end_label = "E" + str(self.translator.while_count+1)
+
+      # self.translator.translation += start_label + ":\n"
+
+ 
+
+      self.translator.closeWhile()  
+
+      #print("Cheguei")e
+
+    elif l[0].getText() == 'if':
       self.visit(l[2])
       self.visit(l[4])
       
+      if l[5].getText() == 'else':
+        self.translator.translation += "goto L" + str(self.translator.if_count+1) + "\n"
+        self.translator.translation += "L"+ str(self.translator.if_count) +":\n"
+        self.visit(l[6])
+        self.translator.closeIf(ehElse=True)
+
+      else:
+        self.translator.closeIf()
     else:
       return self.visitChildren(ctx)
+
+   
 
   
 
