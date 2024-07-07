@@ -66,20 +66,29 @@ class AddressOutput():
   
 
   def closeWhile(self):
-    self.translation += "E" + str(self.while_count) + ":\n" 
     self.translation += "goto start" +str(self.while_start) +"\n"
+    self.translation += "E" + str(self.while_count) + ":\n" 
+
     self.while_start+=1
 
   def openFunction(self,funcName,funcParams):
     #print(funcName)
     # sabemos que é uma função
     # print('PARAMETROS DA FUNCAO: ', funcParams)
-    self.translation += f"{funcName}: \n"
+    self.translation += f"{funcName}("
+    for parametro in funcParams:
+      if parametro == funcParams[-1]:
+        self.translation += f"{parametro} "
+      else:
+        self.translation += f"{parametro}, "
+      
+    
+    self.translation += "){\n"
 
 
 
   def closeFunction(self):
-    self.translation += f"-----\n"
+    self.translation += "}\n\n"
 
 
 
@@ -478,7 +487,8 @@ class EvalVisitor(MiniCVisitor):
           
     self.function_args[self.escope] = lista_argumentos # salvando a lista de tipo dos argumentos e o nome da função
     self.translator.openFunction(nome,paramList)
-    return super().visitFunction_body(ctx)
+    super().visitFunction_body(ctx)
+    self.translator.closeFunction()
     
   
 
