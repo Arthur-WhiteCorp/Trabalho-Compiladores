@@ -25,7 +25,11 @@ input_stream = InputStream(data)
 # Inicializa o lexer e o parser
 lexer = MiniCLexer(input_stream)
 token_stream = CommonTokenStream(lexer)
+
 parser = MiniCParser(token_stream)
+
+
+
 
 # Realiza a análise sintática
 tree = parser.program()
@@ -34,6 +38,13 @@ visitor = EvalVisitor()
 
 visitor.visit(tree)
 
+with open('output.txt', 'w') as file:
+    # Redireciona a saída padrão para o arquivo
+    sys.stdout = file
+    # Visita a árvore e grava a saída no arquivo
+    visitor.visit(tree)
+    # Restaura a saída padrão para o console
+    sys.stdout = sys.__stdout__
 
 # if visitor.erros:
 #     print("Semantic Errors:")

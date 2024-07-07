@@ -30,6 +30,7 @@ int funcao(int a, int b, int c, int d){//5
 // 
 // 
 
+    int variavel;
 
 
 	return batata + fact() - 8;
