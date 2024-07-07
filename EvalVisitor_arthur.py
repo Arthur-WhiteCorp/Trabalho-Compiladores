@@ -70,6 +70,47 @@ class AddressOutput():
     self.translation += "goto start" +str(self.while_start) +"\n"
     self.while_start+=1
 
+  def openFunction(self,funcName,funcParams):
+    #print(funcName)
+    # sabemos que é uma função
+    # print('PARAMETROS DA FUNCAO: ', funcParams)
+    self.translation += f"{funcName}: \n"
+
+
+
+  def closeFunction(self):
+    self.translation += f"-----\n"
+
+
+
+
+  def openReturn(self, myLine:list, finalVar:str, size:int):
+    if size > 3:#a + b + c + d, return a+b
+
+
+      for operando in range(1,size,2):
+        pos1 = myLine[operando-1][1] # a
+        pos2 = myLine[operando][1] # +
+        pos3 = myLine[operando+1][1] # b
+        
+        if operando == 1:
+          self.translation += f"T{self.count} = {pos1} {pos2} {pos3}\n"
+          
+        elif operando < size:
+          self.translation += f"T{self.count} = T{self.count} {pos2} {pos3}\n"
+      self.translation += f"return T{self.count} \n"
+
+    elif size == 3:    #a=b, return a+b 
+      
+      pos1 = myLine[0][1]
+      pos2 = myLine[1][1]
+      pos3 = myLine[2][1]
+     
+      self.translation += f"return {pos1} {pos2} {pos3}\n"
+    else:
+      pos1 = myLine[0][1]
+      self.translation += f"return {pos1}\n"
+    self.count += 1   
 
 
   def addBinary(self,lineVector:list,lineNum:int,ehIf=False,ehWhile=False, ehReturn=False):
@@ -80,7 +121,7 @@ class AddressOutput():
         myLine.append(item)
     finalVar = myLine[0][1]
     size = len(myLine)
-    if not ehIf and not ehWhile: 
+    if not ehIf and not ehWhile and not ehReturn: 
       if size > 5:
         for operando in range(3,size,2):
           pos1 = myLine[operando-1][1]
@@ -112,6 +153,9 @@ class AddressOutput():
       self.openIf(myLine,lineNum)
     elif ehWhile:
       self.openWhile(myLine, lineNum)    # colocar openWhile
+    
+    elif ehReturn:
+      self.openReturn(myLine, finalVar, size)
 
 
 class EvalVisitor(MiniCVisitor):
@@ -176,25 +220,16 @@ class EvalVisitor(MiniCVisitor):
       argumentos += chamada_da_funcao[i]      
 
     argumentos = argumentos.split(',')
-    
-    # del argumentos[0]
-    # del argumentos[-1]
-#    print("ARGUMENTOOOOOOOOOOOS: ", argumentos)
+  
     args_individuais = [a.strip() for arg in argumentos for a in arg.split(',')]
 
-#    print("ARGS INDIVIDUAIS: ", args_individuais)
 
     if eh_mesmo_tamanho and len(tipos_original) > 0:
       for i in range(len(args_individuais)):
-#        print("Arg atual",args_individuais[i])
-        # if arg.isdigit():
-        #   print('Achei um numero inteiro: ', arg)
-        # else:
-        #   print('Não é inteiro: ', arg)
+
         tipo2 = None
         #FUNCAO
         nome_intermediario=args_individuais[i]
-#        print('Nome intermediário: ', nome_intermediario)
         index_parenteses=nome_intermediario.find('(')
 
         eh_funcao=False
@@ -421,6 +456,8 @@ class EvalVisitor(MiniCVisitor):
     lista_argumentos = []
     # aqui seleciona o nome da funcao
     self.escope = ctx.parentCtx.getChild(1).getChild(0).getText() # nome da função
+    nome = self.escope
+    paramList = [ ]
     #print("FUNCAO NOME: ", self.escope)
     parameters = ctx.parentCtx.getChild(1).getChild(1).getChild(1)
     self.symbol_table[self.escope] = {}
@@ -431,7 +468,7 @@ class EvalVisitor(MiniCVisitor):
       for index in range(0,size,3):
         var_type = l[index].getText()
         var_name = l[index+1].getText()
-        
+        paramList.append(f"{var_type} {var_name}")
         lista_argumentos.append(var_type)
 
         if var_name in self.symbol_table[self.escope]:
@@ -440,7 +477,10 @@ class EvalVisitor(MiniCVisitor):
           self.symbol_table[self.escope][var_name] = var_type
           
     self.function_args[self.escope] = lista_argumentos # salvando a lista de tipo dos argumentos e o nome da função
+    self.translator.openFunction(nome,paramList)
     return super().visitFunction_body(ctx)
+    
+  
 
   def visitFunction_definition(self, ctx: MiniCParser.Function_definitionContext):
     lista=list(ctx.getChildren())
@@ -504,28 +544,30 @@ class EvalVisitor(MiniCVisitor):
         copia= self.unarios.copy()
       self.binaryControler -= 1
     if self.binaryControler == 0:
+      #print("O filho :",ctx.parentCtx.parentCtx.getChild(0).getText())
       if ctx.parentCtx.parentCtx.getChild(0).getText() == 'if':
         self.translator.addBinary(copia,ctx.start.line,ehIf=True) 
       elif ctx.parentCtx.parentCtx.getChild(0).getText() == 'while':
         self.translator.addBinary(copia,ctx.start.line,ehIf=False,ehWhile=True) 
-      elif ctx.parentCtx.parentCtx.getChild(0).getText() == 'return' or ctx.parentCtx.parentCtx.getChild(0).getText() == 'break' or ctx.parentCtx.parentCtx.getChild(0).getText() == 'continue':
-        pass
+      elif ctx.parentCtx.parentCtx.getChild(0).getText() == 'return': #so trata return que tem direita
+        # print('Tem algo na direita do return')
+        self.translator.addBinary(copia,ctx.start.line,ehReturn=True)
       else:
         self.translator.addBinary(copia,ctx.start.line)
       # return alguma ;
   def visitStatement(self, ctx: MiniCParser.StatementContext):
     l = list(ctx.getChildren())
     
-    for i,j in enumerate(l):
-      print(i,j.getText())
+    # for i,j in enumerate(l):
+    #   print(i,j.getText())
 
     if l[0].getText() == 'while':
 
-      print("É whileeeeeeeeeeeee")
+      #print("É whileeeeeeeeeeeee")
 
-      print('l2: ', l[2].getText())
+      #print('l2: ', l[2].getText())
       self.visit(l[2])
-      print('l4: ', l[4].getText())
+      #print('l4: ', l[4].getText())
       self.visit(l[4])
 
 
@@ -555,6 +597,13 @@ class EvalVisitor(MiniCVisitor):
 
       else:
         self.translator.closeIf()
+
+    elif l[0].getText() == 'return' and len(l) < 3:
+      self.translator.translation += 'return' + '\n'
+    elif l[0].getText() == 'break':
+      self.translator.translation += 'break' + '\n'
+    elif l[0].getText() == 'continue':
+      self.translator.translation += 'continue' + '\n'
     else:
       return self.visitChildren(ctx)
 
