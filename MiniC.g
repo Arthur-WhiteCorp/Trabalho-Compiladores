@@ -1,3 +1,14 @@
+/*
+Representação Intermediária - Trabalho de Compiladores
+
+Integrantes: 
+Arthur Matias
+Bianka Vasconcelos
+Micael Viana
+
+Segue abaixo a gramática do MiniC.
+*/
+
 grammar MiniC;
 program: definition (definition)* EOF;
 
@@ -121,8 +132,8 @@ primary
 
 argument_list: binary (',' binary )* ;
 
-//CONSTANT_INT : [0-9]+;
-CONSTANT_INT: '-'?[0-9]+;
+CONSTANT_INT : [0-9]+;
+//CONSTANT_INT: '-'?[0-9]+;
 //CONSTANT_CHAR: "[.]";
 CONSTANT_CHAR : '\'' . '\'' ;
 

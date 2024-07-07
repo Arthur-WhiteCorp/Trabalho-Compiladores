@@ -1,0 +1,4 @@
+fatorial(int n ){
+return fatorial(n-1)
+}
+

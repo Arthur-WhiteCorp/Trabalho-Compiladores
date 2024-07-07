@@ -1,4 +1,4 @@
-// Generated from c:/Users/Neon/Desktop/falculdade/compiladores/3 Adress/Trabalho-Compiladores/MiniC.g by ANTLR 4.13.1
+// Generated from /home/biankavm/Documents/Trabalho-Compiladores/MiniC.g by ANTLR 4.13.1
 import org.antlr.v4.runtime.atn.*;
 import org.antlr.v4.runtime.dfa.DFA;
 import org.antlr.v4.runtime.*;

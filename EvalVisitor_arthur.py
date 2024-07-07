@@ -1,3 +1,14 @@
+'''
+Representação Intermediária - Trabalho de Compiladores
+
+Integrantes: 
+Arthur Matias
+Bianka Vasconcelos
+Micael Viana
+
+Segue abaixo o Eval Visitor com a análise semântica e representação intermediária.
+'''
+
 from MiniCVisitor import MiniCVisitor
 from MiniCParser import MiniCParser
 
@@ -239,6 +250,18 @@ class EvalVisitor(MiniCVisitor):
         tipo2 = None
         #FUNCAO
         nome_intermediario=args_individuais[i]
+        #print('nome intermediario: ', nome_intermediario)
+        #operadores = "+-*/%"
+        simbolos=['=', '+', '-=', '*=', '/=', '%=', '==', '!=', '<=', '>=', '>', '<', '+', '-', '*', '/', '%']
+        achei_simbolo=False
+        for char in simbolos:
+          #print('char=',char)
+          if char in nome_intermediario:
+            achei_simbolo = True
+            break
+        if achei_simbolo:
+          continue
+        
         index_parenteses=nome_intermediario.find('(')
 
         eh_funcao=False
@@ -247,7 +270,7 @@ class EvalVisitor(MiniCVisitor):
 #          print("Detectou que eh funcao")
           eh_funcao=True
         elif index_parenteses == 0:
-          pass
+          continue
 
         nome2=nome_intermediario.split('(')[0]
 #        print("NOME2: ",nome2)
@@ -280,8 +303,7 @@ class EvalVisitor(MiniCVisitor):
         #print(len(nome2))
         
         if not variableExists and tipo2 is None and len(lista_argumentos)>1: #consertar para nome2 nao vazio  nao cair em variavel nao declarada
-          self.add_error_alt(f"Error variable aaa '{nome2}' not declared.", numero_linha)
-          
+          self.add_error_alt(f"Error variable a aaa '{nome2}' not declared.", numero_linha)
           continue
       
         
@@ -319,9 +341,9 @@ class EvalVisitor(MiniCVisitor):
       if index_parenteses>0:
         eh_funcao=True
       elif index_parenteses==0:
-        #self.avaliacaoExpressao(numero_linha,)
+        self.avaliacaoExpressao(numero_linha,)
         #nao posso avaliar, esse return depende do tipo da funcao em que ele encontra
-        pass
+        continue
 
 
       nome1=nome_intermediario.split('(')[0]
@@ -378,6 +400,7 @@ class EvalVisitor(MiniCVisitor):
           eh_funcao=True
         elif index_parenteses == 0:
           self.avaliacaoExpressao(numero_linha,tipo1,nome_intermediario)
+          continue
 
         nome2=nome_intermediario.split('(')[0]
 
@@ -424,7 +447,6 @@ class EvalVisitor(MiniCVisitor):
   # processamento dos unários
   def __del__(self):
     #print("Sera=?",self.unarios) # na esquerda a linha, na direita o conteudo
-    print(self.translator.translation)
     dicio = {}
 
     for chave, valor in self.unarios:
@@ -440,8 +462,19 @@ class EvalVisitor(MiniCVisitor):
       print("Semantic Errors:")
       for k in self.erros:
         print(k)
+        return
     else:
       print("No semantic errors")
+      print(self.translator.translation)
+
+      with open('output.txt', 'w') as file:
+        file.write(self.translator.translation)
+      print("Gravado no arquivo output.txt")
+        
+      
+
+      
+      
 
     # print(self.symbol_table)
 
@@ -554,6 +587,7 @@ class EvalVisitor(MiniCVisitor):
         copia= self.unarios.copy()
       self.binaryControler -= 1
     if self.binaryControler == 0:
+      
       #print("O filho :",ctx.parentCtx.parentCtx.getChild(0).getText())
       if ctx.parentCtx.parentCtx.getChild(0).getText() == 'if':
         self.translator.addBinary(copia,ctx.start.line,ehIf=True) 

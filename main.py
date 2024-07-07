@@ -1,3 +1,15 @@
+'''
+Representação Intermediária - Trabalho de Compiladores
+
+Integrantes: 
+Arthur Matias
+Bianka Vasconcelos
+Micael Viana
+
+Segue abaixo a main com a chamada do Eval Visitor para realizar a análise semântica e a representação intermediária.
+'''
+
+
 import sys
 from antlr4 import *
 from MiniCLexer import MiniCLexer
@@ -24,35 +36,29 @@ input_stream = InputStream(data)
 
 # Inicializa o lexer e o parser
 lexer = MiniCLexer(input_stream)
+
+
 token_stream = CommonTokenStream(lexer)
 
 parser = MiniCParser(token_stream)
 
 
 
+# parser.getErrorListenerDispatch
+
 
 # Realiza a análise sintática
 tree = parser.program()
 
-visitor = EvalVisitor()
+numero_erros = parser.getNumberOfSyntaxErrors()
+# print("NUmero === ",numero_erros)
 
-visitor.visit(tree)
 
-with open('output.txt', 'w') as file:
-    # Redireciona a saída padrão para o arquivo
-    sys.stdout = file
-    # Visita a árvore e grava a saída no arquivo
+if numero_erros == 0 :
+    visitor = EvalVisitor()
     visitor.visit(tree)
-    # Restaura a saída padrão para o console
-    sys.stdout = sys.__stdout__
-
-# if visitor.erros:
-#     print("Semantic Errors:")
-# #    for erro in visitor.erros:
-# #        print(erro)
-# else:
-#     print("No semantic errors.")
-
-# print(tree.toStringTree(recog=parser))
-
-# Imprime a árvore de análise
+else:
+    if numero_erros > 1:
+        print(f"Há {numero_erros} erros sintáticos.")
+    else:
+        print(f"Há {numero_erros} erro sintático.")

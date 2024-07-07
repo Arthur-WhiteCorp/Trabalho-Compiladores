@@ -15,7 +15,7 @@ int funcao(int a, int b, int c, int d){//5
 		batata *= 5 + 20 + 30 * 5;
 		e -= f + batata * 3;
 	}else{
-		caue = 'a';
+		caue = '2';
 	}
 	//(5,d) (5,5) (5,+), (8,'2')
 	f = 4;
@@ -30,7 +30,7 @@ int funcao(int a, int b, int c, int d){//5
 // 
 // 
 
-    int variavel;
+    //int variavel;
 
 
 	return batata + fact() - 8;
