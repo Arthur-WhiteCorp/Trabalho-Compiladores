@@ -133,6 +133,16 @@ class AddressOutput():
     self.count += 1   
 
 
+  def manipulationString(self,myLine:list):
+    string=''
+    for i in myLine:
+      string += i[1]
+
+    print("---Manipulacao",string)
+
+    
+
+
   def addBinary(self,lineVector:list,lineNum:int,ehIf=False,ehWhile=False, ehReturn=False):
     myLine = []
     symbols = ['=', '+', '-=', '*=', '/=', '%=', '==', '!=', '<=', '>=', '>', '<', '+', '-', '*', '/', '%']
@@ -141,11 +151,16 @@ class AddressOutput():
         myLine.append(item)
     finalVar = myLine[0][1]
     size = len(myLine)
+    self.manipulationString(myLine)
+    # d = 2 + a * b + c/5
+    #d = a * b + c/5 + 2
     if not ehIf and not ehWhile and not ehReturn: 
       if size > 5:
         for operando in range(3,size,2):
           pos1 = myLine[operando-1][1]
           pos2 = myLine[operando][1]
+
+          #print(myLine)
           pos3 = myLine[operando+1][1]
           
           if operando == 3:    
@@ -584,10 +599,9 @@ class EvalVisitor(MiniCVisitor):
         l2 = l[i]
         # print(l2.getText())
         self.unarios.append((ctx.start.line,l2.getText())) # o vetor tem tuplas com a informação da linha
-        copia= self.unarios.copy()
       self.binaryControler -= 1
     if self.binaryControler == 0:
-      
+      copia= self.unarios.copy()
       #print("O filho :",ctx.parentCtx.parentCtx.getChild(0).getText())
       if ctx.parentCtx.parentCtx.getChild(0).getText() == 'if':
         self.translator.addBinary(copia,ctx.start.line,ehIf=True) 

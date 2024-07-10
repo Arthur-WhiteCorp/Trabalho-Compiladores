@@ -59,6 +59,6 @@ if numero_erros == 0 :
     visitor.visit(tree)
 else:
     if numero_erros > 1:
-        print(f"Há {numero_erros} erros sintáticos.")
+        print(f"Há {numero_erros} erros.")
     else:
-        print(f"Há {numero_erros} erro sintático.")
+        print(f"Há {numero_erros} erro.")
