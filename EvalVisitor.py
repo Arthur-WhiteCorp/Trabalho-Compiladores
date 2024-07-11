@@ -15,10 +15,7 @@ class EvalVisitor(MiniCVisitor):
   def avaliacaoExpressao(self, numero_linha,tipo1,conteudo):
       #(5/2+fatorial(n)-c)
     for item in conteudo:
-        simbolos=['=', '+', '-=', '*=', '/=', '%=', '==', '!=', '<=', '>=', '>', '<', '+', '-', '*', '/', '%']
-        simbolos.append('(')
-        simbolos.append(')')
-        if item in simbolos: continue
+        if item in self.symbols: continue
 
         #FUNCAO
         tipo2=None
@@ -64,8 +61,7 @@ class EvalVisitor(MiniCVisitor):
         # Verificando o identificador da direita
         
         if item == nome1: continue
-        simbolos=['=', '+', '-=', '*=', '/=', '%=', '==', '!=', '<=', '>=', '>', '<', '+', '-', '*', '/', '%']
-        if item in simbolos: continue
+        if item in self.symbols: continue
         
         #FUNCAO
         tipo2=None

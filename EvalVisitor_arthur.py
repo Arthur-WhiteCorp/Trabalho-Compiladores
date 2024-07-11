@@ -20,6 +20,7 @@ class AddressOutput():
     self.while_count = 1
     self.while_start=1
     self.while_end=1
+    self.symbols = ['*','/','%','+','-','<','>','<=','>=','==','!=','=','*=','/=','%=','+=','-=']
 
   def addDataDefinition(self,dataDef):
     variables = dataDef.split(",")
@@ -42,7 +43,6 @@ class AddressOutput():
       self.translation += "\n"
 
   def openIf(self,lineVector:list,lineNum:int):
-    #symbols = ['=', '+', '-=', '*=', '/=', '%=', '==', '!=', '<=', '>=', '>', '<', '+', '-', '*', '/', '%']
     finalVar = lineVector[0][1]
     #size = len(lineVector)
     
@@ -63,7 +63,6 @@ class AddressOutput():
 
 
   def openWhile(self,lineVector:list,lineNum:int):
-    #symbols = ['=', '+', '-=', '*=', '/=', '%=', '==', '!=', '<=', '>=', '>', '<', '+', '-', '*', '/', '%']
     finalVar = lineVector[0][1]
     #size = len(lineVector)
     
@@ -134,18 +133,58 @@ class AddressOutput():
 
 
   def manipulationString(self,myLine:list):
-    string=''
+    print("Linha atual=",myLine[0][0])
+    copia_simbolos = self.symbols.copy()
+    copia_simbolos.reverse() #invertir
+    print("self.symbols invertidos=",copia_simbolos)
+    minhaLinha=[]
     for i in myLine:
-      string += i[1]
+      minhaLinha.append(i[1])
 
-    print("---Manipulacao",string)
+    print("---Manipulacao",minhaLinha)
 
-    
+    quantidadeSimbolosTerminaisUnicos=0
+    for i in minhaLinha:
+      if i in copia_simbolos:
+        quantidadeSimbolosTerminaisUnicos+=1
+
+
+    lista_pos_maiores=[]
+
+    for k in range(quantidadeSimbolosTerminaisUnicos):
+      maior=-1
+      pos_maior=0
+
+      #encontrar o maior
+      for pos,char in enumerate(minhaLinha): 
+        if char in copia_simbolos:
+          valor_caractere=copia_simbolos.index(char)
+          if valor_caractere > maior and pos not in lista_pos_maiores:
+            maior=valor_caractere
+            pos_maior=pos
+
+      #colocar parenteses na esquerda da esquerda
+      #colocar parenteses na direita da direita
+      esquerda=minhaLinha[pos_maior-1]
+      direita=minhaLinha[pos_maior+1]
+      #if '(' not in esquerda and ')' not in esquerda:
+      if esquerda.find('(') == -1 and esquerda.find(')') == -1 and direita.find('(') == -1 and direita.find(')') == -1: #nao tem parenteses
+        minhaLinha[pos_maior-1] = '(' + minhaLinha[pos_maior-1]
+        minhaLinha[pos_maior+1] = minhaLinha[pos_maior+1] + ')'
+      
+      lista_pos_maiores.append(pos_maior)
+
+      print(f"Maior da linha {copia_simbolos[maior]} e posicao {pos_maior}")
+
+    print("Minha nova linha=",minhaLinha)
+    print()
+    print()
+
+
 
 
   def addBinary(self,lineVector:list,lineNum:int,ehIf=False,ehWhile=False, ehReturn=False):
     myLine = []
-    symbols = ['=', '+', '-=', '*=', '/=', '%=', '==', '!=', '<=', '>=', '>', '<', '+', '-', '*', '/', '%']
     for item in lineVector:
       if item[0] == lineNum:
         myLine.append(item)
@@ -206,13 +245,11 @@ class EvalVisitor(MiniCVisitor):
     self.unarios = [] # vetor para armazenar os unários
     self.translator = AddressOutput()
     self.binaryControler = 0
+    self.symbols = ['*','/','%','+','-','<','>','<=','>=','==','!=','=','*=','/=','%=','+=','-=']
   def avaliacaoExpressao(self, numero_linha,tipo1,conteudo):
       #(5/2+f(n)-c)
     for item in conteudo:
-        simbolos=['=', '+', '-=', '*=', '/=', '%=', '==', '!=', '<=', '>=', '>', '<', '+', '-', '*', '/', '%']
-        simbolos.append('(')
-        simbolos.append(')')
-        if item in simbolos: continue
+        if item in self.symbols: continue
 
         #FUNCAO
         tipo2=None
@@ -267,9 +304,8 @@ class EvalVisitor(MiniCVisitor):
         nome_intermediario=args_individuais[i]
         #print('nome intermediario: ', nome_intermediario)
         #operadores = "+-*/%"
-        simbolos=['=', '+', '-=', '*=', '/=', '%=', '==', '!=', '<=', '>=', '>', '<', '+', '-', '*', '/', '%']
         achei_simbolo=False
-        for char in simbolos:
+        for char in self.symbols:
           #print('char=',char)
           if char in nome_intermediario:
             achei_simbolo = True
@@ -401,8 +437,7 @@ class EvalVisitor(MiniCVisitor):
         # Verificando o identificador da direita
         
         if item == nome1: continue
-        simbolos=['=', '+', '-=', '*=', '/=', '%=', '==', '!=', '<=', '>=', '>', '<', '+', '-', '*', '/', '%']
-        if item in simbolos: continue
+        if item in self.symbols: continue
         
         # --- Função ---
         tipo2=None

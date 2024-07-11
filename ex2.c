@@ -12,9 +12,12 @@ int fact(){
 	int del;
 	a = 5 + 2;
 	d = (2) + (a * b) - (del / 5) + (2);
+	d = 2 + a * b - del / 5 + 2;
 	//return 
 	// T1 = a*b
 	// T2 = a*b
+	//return a - b * c
+	//if (a > b)
 	//t3=del/5
 	//t4=2
 	//t5=t1+t2
@@ -44,7 +47,7 @@ int funcao(int a, int b, int c, int d){//5
 
     //int variavel;
 
-	return a=2;
+	return a*2;
 	//return batata + fact() - 8;
 }
 //return a=2
