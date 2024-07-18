@@ -2,38 +2,7 @@ int batata
 int e
 int f
 char caue
-fact(){
-int a
-int d
-int c
-int b
-int del
-a = 5 + 2
-T1 = (2) + (a*b)
-T2 = T1 - (del/5)
-d = T2 + (2)
-T3 = 2 + a
-T4 = T3 * b
-T5 = T4 - del
-T6 = T5 / 5
-d = T6 + 2
-return
-}
 
-funcao(int a, int b, int c, int d ){
-if e > funcao(a,b,c,d) goto L1
-goto L2
-L1: T7 = 5 + 20
-T8 = T7 + 30
-batata *= T8 * 5
-T9 = f + batata
-e -= T9 * 3
-goto L3
-L2:
-caue = '2'
-L3:
-f = 4
-f = fact()
-return a * 2
+main(){
+  int d
 }
-

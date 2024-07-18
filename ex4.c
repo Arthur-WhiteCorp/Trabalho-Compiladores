@@ -3,5 +3,4 @@ int soma(){
   a = 10;
   b = 5;
   c = fat(n) + f(n) + e + '5';
-  
 }
