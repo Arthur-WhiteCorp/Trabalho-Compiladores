@@ -682,14 +682,15 @@ class EvalVisitor(MiniCVisitor):
       self.visit(l[2])
       self.visit(l[4])
       
-      if l[5].getText() == 'else':
-        self.translator.translation += "goto L" + str(self.translator.if_count+1) + "\n"
-        self.translator.translation += "L"+ str(self.translator.if_count) +":\n"
-        self.visit(l[6])
-        self.translator.closeIf(ehElse=True)
-
-      else:
-        self.translator.closeIf()
+      if len(l) > 5:  # verificar se a lista tem pelo menos 6 elementos
+        if l[5] is not None:
+          if l[5].getText() == 'else':
+              self.translator.translation += "goto L" + str(self.translator.if_count + 1) + "\n"
+              self.translator.translation += "L" + str(self.translator.if_count) + ":\n"
+              self.visit(l[6])
+              self.translator.closeIf(ehElse=True)
+          else:
+              self.translator.closeIf()
 
     elif l[0].getText() == 'return' and len(l) < 3:
       self.translator.translation += 'return' + '\n'
