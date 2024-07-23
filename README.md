@@ -1,2 +1,2 @@
 # Trabalho-Compiladores
-Análise semântica do miniC.
+Um repositório para o nosso trabalho de compiladores.
