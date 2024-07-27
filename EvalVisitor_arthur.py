@@ -9,6 +9,7 @@ Micael Viana
 Segue abaixo o Eval Visitor com a análise semântica e representação intermediária.
 '''
 
+from re import M
 from MiniCVisitor import MiniCVisitor
 from MiniCParser import MiniCParser
 
@@ -136,13 +137,30 @@ class AddressOutput():
     print("Linha atual=",myLine[0][0])
     copia_simbolos = self.symbols.copy()
     copia_simbolos.reverse() #invertir
-    print("self.symbols invertidos=",copia_simbolos)
+    # print("self.symbols invertidos=",copia_simbolos)
     minhaLinha=[]
     for i in myLine:
       minhaLinha.append(i[1])
 
-    print("---Manipulacao",minhaLinha)
+    # print("Manipulacao",minhaLinha)
 
+    #if(a > y),return b
+    precedencia=[]
+    if len(minhaLinha) <=3:
+      print("---Minha nova linha=",minhaLinha)
+      print(list(enumerate(minhaLinha)))
+      precedencia=minhaLinha
+      print('********finally=',precedencia)
+      return precedencia
+
+
+    #tentar remover os simbolos que dao trabalho
+    copia_simbolos.remove('=')
+    copia_simbolos.remove('*=')
+    copia_simbolos.remove('/=')
+    copia_simbolos.remove('%=')
+    copia_simbolos.remove('+=')
+    copia_simbolos.remove('-=')
     quantidadeSimbolosTerminaisUnicos=0
     for i in minhaLinha:
       if i in copia_simbolos:
@@ -176,9 +194,32 @@ class AddressOutput():
 
       print(f"Maior da linha {copia_simbolos[maior]} e posicao {pos_maior}")
 
-    print("Minha nova linha=",minhaLinha)
+    # print("---Minha nova linha=",minhaLinha)
+    print("---Minha nova linha=",minhaLinha)
+    print(list(enumerate(minhaLinha)))
+    print("vetor com precedencia")
+
+    precedencia=[]
+    tamanhoMinhaLinha=len(minhaLinha)
+    i=0
+    while(i < tamanhoMinhaLinha):
+      atual=minhaLinha[i]
+      print('atual = ',atual)
+      #caso especial, abriu o parentese e nao fechou, achou o parentese que abre, mas nao achou o que fecha entao concatena duas strings a frente
+      if atual.find('(') != -1 and atual.find(')') == -1:
+        atual = minhaLinha[i] + minhaLinha[i+1] + minhaLinha[i+2]
+        i+=3
+      else:
+        i+=1
+      
+      precedencia.append(atual)
+
+    print('********finally=',precedencia)
     print()
     print()
+    #isso retorna um vetor,talvez a melhor saida pra nao mexer com o  resto do codigo seja alguem transformar isso em uma tupla
+    return precedencia
+
 
 
 
