@@ -4,6 +4,7 @@ int main(){
 
   if (b > y){
     b = 2 + 3 + 4;
+    b += 1;
   }else{
     y=5;
   }

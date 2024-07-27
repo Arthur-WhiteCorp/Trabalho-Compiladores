@@ -2,37 +2,57 @@ import sys
 import re
 
 # traduzido = ""
+# True pode usar, False não pode usar
 
-registradores = {"$zero": False, "$at": False, "$v0": False, "$v1": False, "$a0": False, 
-                 "$a1": False, "$a2": False, "$a3": False, "$t0": False, "$t1": False,
-                 "$t2": False, "$t3": False, "$t4": False, "$t5": False, "$t6": False, 
-                 "$t7": False, "$s0": False, "$s1": False, "$s2": False, "$s3": False, 
-                 "$s4": False, "$s5": False, "$s6": False, "$s7": False, "$t8": False, 
-                 "$t9": False, "$k0": False, "$k1": False, "$gp":False, "$sp": False,
-                 "$fp": False, "$ra": False}
+traduzido = ""
+
+
+registradores = {"$zero": True, "$at": True, "$v0": True, "$v1": True, "$a0": True, 
+                 "$a1": True, "$a2": True, "$a3": True, "$t0": True, "$t1": True,
+                 "$t2": True, "$t3": True, "$t4": True, "$t5": True, "$t6": True, 
+                 "$t7": True, "$s0": True, "$s1": True, "$s2": True, "$s3": True, 
+                 "$s4": True, "$s5": True, "$s6": True, "$s7": True, "$t8": True, 
+                 "$t9": True, "$k0": True, "$k1": True, "$gp":True, "$sp": True,
+                 "$fp": True, "$ra": True}
+
 
 def decide_instruction(line):
-    #decide o que a linha representa
+    # decide o que a linha representa
+    type_of_operation = ""
+    
+    # caso 1: atribuição
     if line.find("=") != -1:
-        print("Achei uma atribuição na linha", line)
+        type_of_operation = "atribuicao"
 
     #return o que ela é intruction_type ex: att,contidional
-    return 1
+    return type_of_operation
 
 
 def translate_att(line):
+    global traduzido
     # aqui vamos traduzir o att
+    #faz un for de t0 a t6
+
+    for i in range(0,8):
+        key = f"$t{i}"
+        if registradores[key] == True:     
+            break
+    quebrada = line.split("=")
+    var = quebrada[0].strip()
+    value = quebrada[1].split("\n")[0]
+    traduzido += f"addi {key}, $zero, {value}\n"
+    traduzido += f"sw {key}, {var}($zero)\n"
     return 1
 
 def translate_line(line, instruction_type):
     match(instruction_type):
-        case "att":
-            translate_att(line)
-            return 1
+        case "atribuicao":
+            return (translate_att(line))
     
 
-def tres_enderecos_var_para_mips(traduzido, cod_3_enderecos):
-    traduzido+= ".data:\n"
+def tres_enderecos_var_para_mips(cod_3_enderecos):
+    global traduzido
+    traduzido += ".data\n"
     with open(cod_3_enderecos, 'r') as file:
         data = file.readlines()
         
@@ -48,6 +68,7 @@ def tres_enderecos_var_para_mips(traduzido, cod_3_enderecos):
                         traduzido += f"{line_without_spaces[1]}: .space 4\n"
                     elif line_without_spaces[0] == 'char':
                         traduzido += f"{line_without_spaces[1]}: .space 1\n"
+    traduzido += ".text\n"
 
     return traduzido
     
@@ -74,24 +95,26 @@ def tres_enderecos_funcao_para_mips(cod_3_enderecos):
                 funcoes_achadas.append(line.split("(")[0]) # pega o nome da função
     return funcoes_achadas
 
-def traduz(traduzido, funcoes_achadas):
+def traduz(funcoes_achadas):
     # fazer um tupla que relaciona a função com conteudo
     #ler o arquivo
+    global traduzido
     with open(cod_3_enderecos, 'r') as file:
         data = file.readlines()
         for line in data:
             item = line.split("(")[0]
-            print(f"Item {item}")
+            # print(f"Item {item}")
             if item in funcoes_achadas:
-                print(f"O item {item} é função")
+                # print(f"O item {item} é função")
                 traduzido += f"{item}:\n"
             elif line[0] == "}":
-                traduzido += "fim\n"
+               None
             else:
                 # traduzir o conteúdo de line
-                traduzido += line # linha direto por enquanto
+                # traduzido += line # linha direto por enquanto
                 # verificar o que fazer com essa linha (o que ela é)
-                decide_instruction(line)
+                instruction = decide_instruction(line)
+                translate_line(line,instruction)
 
     
     return traduzido
@@ -104,13 +127,14 @@ def traduz(traduzido, funcoes_achadas):
 
 
 def faz_traducao_mips(cod_3_enderecos):
+    global traduzido
     traduzido = ""
     # procurando funções...
     funcoes_achadas = tres_enderecos_funcao_para_mips(cod_3_enderecos)
-    print("Achei essas funções: ", funcoes_achadas)
+    # print("Achei essas funções: ", funcoes_achadas)
     # procurando declarações de variáveis...
-    traduzido = tres_enderecos_var_para_mips(traduzido, cod_3_enderecos)
-    traduzido = traduz(traduzido, funcoes_achadas)
+    tres_enderecos_var_para_mips(cod_3_enderecos)
+    traduz(funcoes_achadas)
 
     return traduzido
 # (inicio_linha, fim_linha, conteudo_linha)
@@ -134,8 +158,14 @@ if __name__ == "__main__":
         print(f"Arquivo '{cod_3_enderecos}' não encontrado.")
         sys.exit(1)
 
+    traducao = faz_traducao_mips(cod_3_enderecos)
+    print(traducao)
+    print()
 
-    print(faz_traducao_mips(cod_3_enderecos))
+    with open('mips.txt', 'w') as file:
+        file.write(traducao)
+    print("Gravado no arquivo mips.txt")
+    
 
 
 

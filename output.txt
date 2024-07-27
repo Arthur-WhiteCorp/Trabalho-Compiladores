@@ -1,17 +1,8 @@
-fat(int a, int b ){ 
-return a * b
-} 
-
-
 main(){
 int a
 int b
 int c
 a = 5
-b = 10
-c = fat(a,b)
-if a == b goto L1
-goto L2
-L1: a = a + 1
+b = 2
+c = 3
 }
-
