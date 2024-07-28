@@ -146,7 +146,7 @@ class AddressOutput():
 
     #if(a > y),return b
     precedencia=[]
-    if len(minhaLinha) <=3:
+    if len(minhaLinha) <=5:
       print("---Minha nova linha=",minhaLinha)
       print(list(enumerate(minhaLinha)))
       precedencia=minhaLinha
