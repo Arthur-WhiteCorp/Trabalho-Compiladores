@@ -2,65 +2,28 @@
 a: .space 4
 b: .space 4
 c: .space 4
-d: .space 4
-e: .space 4
-f: .space 4
-g: .space 4
-h: .space 4
-i: .space 4
-j: .space 4
-k: .space 4
-l: .space 4
-m: .space 4
-n: .space 4
-o: .space 4
-p: .space 4
-q: .space 4
-r: .space 4
-s: .space 4
-t: .space 4
-u: .space 4
 .text
-main:
-addi $t0, $zero,  5
+soma:
+addi $t0, $zero, 2
+addi $t1, $zero, 3
+mult $t0, $t1
+mflo $t0
+sw $t0, T1($zero)
+lw $t0, T1($zero)
+addi $t1, $zero, 4
+add $t0, $t0, $t1
+sw $t0, T2($zero)
+lw $t0, T2($zero)
+addi $t1, $zero, 5
+mult $t0, $t1
+mflo $t0
+sw $t0, T3($zero)
+lw $t0, T3($zero)
+addi $t1, $zero, 5
+sub $t0, $t0, $t1
+sw $t0, T4($zero)
+lw $t0, T4($zero)
+addi $t1, $zero, 2
+div $t0, $t1
+mflo $t0
 sw $t0, a($zero)
-addi $t0, $zero,  2
-sw $t0, b($zero)
-addi $t0, $zero,  3
-sw $t0, c($zero)
-addi $t0, $zero,  6
-sw $t0, d($zero)
-addi $t0, $zero,  1
-sw $t0, e($zero)
-addi $t0, $zero,  6
-sw $t0, f($zero)
-addi $t0, $zero,  1
-sw $t0, g($zero)
-addi $t0, $zero,  1
-sw $t0, h($zero)
-addi $t0, $zero,  1
-sw $t0, i($zero)
-addi $t0, $zero,  1
-sw $t0, j($zero)
-addi $t0, $zero,  1
-sw $t0, k($zero)
-addi $t0, $zero,  1
-sw $t0, l($zero)
-addi $t0, $zero,  1
-sw $t0, m($zero)
-addi $t0, $zero,  1
-sw $t0, n($zero)
-addi $t0, $zero,  1
-sw $t0, o($zero)
-addi $t0, $zero,  1
-sw $t0, p($zero)
-addi $t0, $zero,  1
-sw $t0, q($zero)
-addi $t0, $zero,  1
-sw $t0, r($zero)
-addi $t0, $zero,  1
-sw $t0, s($zero)
-addi $t0, $zero,  1
-sw $t0, t($zero)
-addi $t0, $zero,  1
-sw $t0, u($zero)

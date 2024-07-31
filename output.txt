@@ -1,21 +1,11 @@
+soma(){
+int a
 int b
-int y
-int z
-main(){
-if b > y goto L1
-goto L2
-L1: T1 = 2 + 3
-T2 = T1 * 4
-T3 = T2 + 5
-T4 = T3 / 2
-T5 = T4 * 3
-b = T5 / (1-2)
-b += 1
-goto L3
-L2:
-y = 5
-y = 5 + 2
-L3:
-return 'b'
+int c
+T1 = 2 * 3
+T2 = T1 + 4
+T3 = T2 * 5
+T4 = T3 - 5
+a = T4 / 2
 }
 

@@ -1,6 +1,5 @@
 int soma(){
   int a, b;
-  a = 10;
-  b = 5;
-  c = fat(n) + f(n) + e + '5';
+  int c;
+  a = 2*3+4*5-5/2;
 }

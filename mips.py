@@ -13,15 +13,19 @@ registradores = {"$zero": True, "$at": True, "$v0": True, "$v1": True, "$a0": Tr
                  "$t7": True, "$s0": True, "$s1": True, "$s2": True, "$s3": True, 
                  "$s4": True, "$s5": True, "$s6": True, "$s7": True, "$t8": True, 
                  "$t9": True, "$k0": True, "$k1": True, "$gp":True, "$sp": True,
-                 "$fp": True, "$ra": True}
+                 "$fp": True, "$ra": True, "HI": True, "LO": True}
 
 
 def decide_instruction(line):
     # decide o que a linha representa
     type_of_operation = ""
     
+    # !!mudanças
+    if any(op in line for op in ['+', '-', '*', '/']):
+            type_of_operation = "aritmetica"
+    
     # caso 1: atribuição
-    if line.find("=") != -1:
+    elif line.find("=") != -1:
         type_of_operation = "atribuicao"
 
     #return o que ela é intruction_type ex: att,contidional
@@ -35,19 +39,98 @@ def translate_att(line):
 
     for i in range(0,8):
         key = f"$t{i}"
-        if registradores[key] == True:     
+        # Ocupar o reg
+        if registradores[key] == True:
+            registradores[key] = False     
             break
+    
     quebrada = line.split("=")
     var = quebrada[0].strip()
     value = quebrada[1].split("\n")[0]
     traduzido += f"addi {key}, $zero, {value}\n"
     traduzido += f"sw {key}, {var}($zero)\n"
+    # Liberar o reg
+    registradores[key] = True
+
     return 1
+
+
+def translate_arithmetic(line):
+    global traduzido
+
+    operadores = {
+        '+': 'add',
+        '-': 'sub',
+        '*': 'mult',
+        '/': 'div'
+    }
+
+    # Encontrar um registrador (?)
+    for i in range(0, 8):
+        key1 = f"$t{i}"
+        if registradores[key1] == True:
+            registradores[key1] = False
+            break
+
+    # Encontrar outro registrador (i+1 pra evitar o mesmo)
+    for j in range(i + 1, 8):
+        key2 = f"$t{j}"
+        if registradores[key2] == True:
+            registradores[key2] = False
+            break
+
+    # Dividir variável e resto da expressão
+    quebrada = line.split("=")
+    var = quebrada[0].strip()
+    expr = quebrada[1].strip()
+
+    for op in operadores.keys():
+        if op in expr:
+            esquerda, direita = expr.split(op)
+            esquerda = esquerda.strip()
+            direita = direita.strip()
+
+            if esquerda.isdigit():
+                traduzido += f"addi {key1}, $zero, {esquerda}\n"
+            else:
+                traduzido += f"lw {key1}, {esquerda}($zero)\n"
+
+            if direita.isdigit():
+                traduzido += f"addi {key2}, $zero, {direita}\n"
+            else:
+                traduzido += f"lw {key2}, {direita}($zero)\n"
+
+            # Executar a operação!!
+            if op in ['*', '/']:
+                # Multiplicação e divisão usam registradores HI e LO
+                traduzido += f"{operadores[op]} {key1}, {key2}\n"
+                traduzido += f"mflo {key1}\n"
+            else:
+                traduzido += f"{operadores[op]} {key1}, {key1}, {key2}\n"
+
+            traduzido += f"sw {key1}, {var}($zero)\n"
+            break
+
+    # Liberar os regs
+    registradores[key1] = True
+    registradores[key2] = True
+
+    return 1
+
+
+
+
+
+    
+
+
 
 def translate_line(line, instruction_type):
     match(instruction_type):
         case "atribuicao":
             return (translate_att(line))
+        case "aritmetica":
+            return (translate_arithmetic(line))
     
 
 def tres_enderecos_var_para_mips(cod_3_enderecos):

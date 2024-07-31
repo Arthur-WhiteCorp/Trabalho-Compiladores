@@ -136,9 +136,10 @@ class AddressOutput():
   def manipulationString(self,myLine:list):
     print("Linha atual=",myLine[0][0])
     copia_simbolos = self.symbols.copy()
-    copia_simbolos.reverse() #invertir
+    #copia_simbolos.reverse() #invertir
     # print("self.symbols invertidos=",copia_simbolos)
     minhaLinha=[]
+    numeroLinha=myLine[0][0]
     for i in myLine:
       minhaLinha.append(i[1])
 
@@ -151,10 +152,12 @@ class AddressOutput():
       print(list(enumerate(minhaLinha)))
       precedencia=minhaLinha
       print('********finally=',precedencia)
+      for i in range(len(precedencia)):
+        precedencia[i]=(numeroLinha,precedencia[i])
       return precedencia
 
 
-    #tentar remover os simbolos que dao trabalho
+    #remover os simbolos que dao trabalho para precedencia
     copia_simbolos.remove('=')
     copia_simbolos.remove('*=')
     copia_simbolos.remove('/=')
@@ -218,6 +221,8 @@ class AddressOutput():
     print()
     print()
     #isso retorna um vetor,talvez a melhor saida pra nao mexer com o  resto do codigo seja alguem transformar isso em uma tupla
+    for i in range(len(precedencia)):
+      precedencia[i]=(numeroLinha,precedencia[i])
     return precedencia
 
 
@@ -231,34 +236,72 @@ class AddressOutput():
         myLine.append(item)
     finalVar = myLine[0][1]
     size = len(myLine)
-    self.manipulationString(myLine)
+
+    especiais=['*=',"+=",'-=','%=','/=']
+
+    #myLine=self.manipulationString(myLine)
     # d = 2 + a * b + c/5
     #d = a * b + c/5 + 2
     if not ehIf and not ehWhile and not ehReturn: 
       if size > 5:
-        for operando in range(3,size,2):
-          pos1 = myLine[operando-1][1]
-          pos2 = myLine[operando][1]
+        if myLine[1][1] not in especiais: #senao eh atribuicao especial
+          for operando in range(3,size,2):
+            pos1 = myLine[operando-1][1]
+            pos2 = myLine[operando][1]
+            pos3 = myLine[operando+1][1]
+            
+            if operando == 3:    
+              self.translation += 'T' + str(self.count) +" " +'=' + " " + pos1 + " " + pos2 + " " + pos3 + "\n"
+              self.count += 1
+            elif operando + 2 < size:
+              self.translation += 'T' + str(self.count)+ " " +'=' + " " + 'T' + str(self.count-1)+ " " + pos2 + " " + pos3 + "\n"
+              self.count += 1
+            else:
+              self.translation += finalVar+ " " + myLine[1][1] + " " + 'T' + str(self.count-1)+ " " + pos2 + " " + pos3 + "\n"
+        else:
+           for operando in range(3,size,2):
+            pos1 = myLine[operando-1][1]
+            pos2 = myLine[operando][1]
+            pos3 = myLine[operando+1][1]
+            
+            if operando == 3:    
+              self.translation += 'T' + str(self.count) +" " +'=' + " " + pos1 + " " + pos2 + " " + pos3 + "\n"
+              self.count += 1
+            elif operando + 2 < size:
+              self.translation += 'T' + str(self.count)+ " " +'=' + " " + 'T' + str(self.count-1)+ " " + pos2 + " " + pos3 + "\n"
+              self.count += 1
+            else:
+              self.translation += 'T' + str(self.count)+ " " +'=' + " " + 'T' + str(self.count-1)+ " " + pos2 + " " + pos3 + "\n"
+              self.count += 1
+              operador_especial = myLine[1][1]
+              operador_especial = operador_especial[0]
+              self.translation += finalVar+ " " + "=" + " " + finalVar + " " + operador_especial + " " +'T'+ str(self.count-1) +"\n"
+      elif size == 5:
+        if myLine[1][1] not in especiais:     
+          self.translation += finalVar
+          pos1 = myLine[2][1]
+          pos2 = myLine[3][1]
+          pos3 = myLine[4][1]
+          self.translation += " " + myLine[1][1]+ " " + pos1 + " " + pos2 + " " + pos3 + "\n"
+        else:
+          self.translation += 'T' + str(self.count) + " = "
+          self.count += 1
+          operador_especial = myLine[1][1]
+          operador_especial = operador_especial[0]
+          pos1 = myLine[2][1]
+          pos2 = myLine[3][1]
+          pos3 = myLine[4][1] 
+          self.translation +=  pos1 + " " + pos2 + " " + pos3 + "\n"
+          self.translation += f"{finalVar} = {finalVar} {operador_especial} T{self.count-1}\n"
 
-          #print(myLine)
-          pos3 = myLine[operando+1][1]
-          
-          if operando == 3:    
-            self.translation += 'T' + str(self.count) +" " +'=' + " " + pos1 + " " + pos2 + " " + pos3 + "\n"
-            self.count += 1
-          elif operando+2 < size:
-            self.translation += 'T' + str(self.count)+ " " +'=' + " " + 'T' + str(self.count-1)+ " " + pos2 + " " + pos3 + "\n"
-            self.count += 1
-          else:
-            self.translation += finalVar+ " " + myLine[1][1] + " " + 'T' + str(self.count-1)+ " " + pos2 + " " + pos3 + "\n"
-      elif size == 5:     
+      else: #b *= a, b = b * a
         self.translation += finalVar
-        pos1 = myLine[2][1]
-        pos2 = myLine[3][1]
-        pos3 = myLine[4][1]
-        self.translation += " " + myLine[1][1]+ " " + pos1 + " " + pos2 + " " + pos3 + "\n"
-      else:
-        self.translation += finalVar
+
+        
+        if myLine[1][1] in especiais:
+          self.translation += ' ' + '=' + ' ' + finalVar + ' ' + myLine[1][1][0] + ' ' + myLine[2][1] + "\n"
+          return
+
         try:
           pos1 = myLine[2][1] 
         except IndexError:
