@@ -2,6 +2,10 @@
 a: .space 4
 b: .space 4
 c: .space 4
+T1: .space 4
+T2: .space 4
+T3: .space 4
+T4: .space 4
 .text
 soma:
 addi $t0, $zero, 2

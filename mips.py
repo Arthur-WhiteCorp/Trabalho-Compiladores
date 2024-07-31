@@ -145,12 +145,18 @@ def tres_enderecos_var_para_mips(cod_3_enderecos):
             if line_without_spaces != []:
 
                 #print('Linha atual: ', line_without_spaces)
-
                 if line_without_spaces[0].find("int") == 0 or line_without_spaces[0].find('char') == 0:
                     if line_without_spaces[0] == 'int':
                         traduzido += f"{line_without_spaces[1]}: .space 4\n"
                     elif line_without_spaces[0] == 'char':
                         traduzido += f"{line_without_spaces[1]}: .space 1\n"
+                
+                
+                if line_without_spaces[0].find("T") == 0:
+                        var_control_num = line_without_spaces[0][1:]
+                        if var_control_num.isdigit():
+                            print(var_control_num)
+                            traduzido += f"{line_without_spaces[0]}: .space 4\n"
     traduzido += ".text\n"
 
     return traduzido
