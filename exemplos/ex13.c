@@ -1,8 +1,11 @@
 int main(){
     int a;
     int b;
-    int c;
-    b = 2;
+
     a = 5;
-    c = 3;
+    b = 8;
+
+    if(a != b){
+        a = a + b;
+    }
 }

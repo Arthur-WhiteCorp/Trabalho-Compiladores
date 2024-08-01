@@ -52,7 +52,7 @@ class AddressOutput():
     self.translation += "if " +  finalVar + " " + lineVector[1][1] + " " + pos1  + " goto L"+str(self.if_count) + "\n"
     self.if_count += 1
     self.translation += "goto L"+str(self.if_count) + "\n"  
-    self.translation += "L"+str(self.if_count-1) + ": " 
+    self.translation += "L"+str(self.if_count-1) + ":\n" 
 
   def closeIf(self,ehElse = False):
     if not ehElse:
@@ -773,8 +773,8 @@ class EvalVisitor(MiniCVisitor):
               self.translator.translation += "L" + str(self.translator.if_count) + ":\n"
               self.visit(l[6])
               self.translator.closeIf(ehElse=True)
-          else:
-              self.translator.closeIf()
+      else:
+        self.translator.closeIf(ehElse=False)
 
     elif l[0].getText() == 'return' and len(l) < 3:
       self.translator.translation += 'return' + '\n'

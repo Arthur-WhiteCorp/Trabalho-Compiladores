@@ -1,0 +1,21 @@
+.data
+a: .space 4
+b: .space 4
+.text
+main:
+addi $t0, $zero,  5
+sw $t0, a($zero)
+addi $t0, $zero,  8
+sw $t0, b($zero)
+lw $t0, a($zero)
+lw $t1, b($zero)
+bne $t0, $t1, L1
+j L2
+L1:
+lw $t0, a($zero)
+lw $t1, b($zero)
+add $t0, $t0, $t1
+sw $t0, a($zero)
+L2:
+
+SYSCALL 0

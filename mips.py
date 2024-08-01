@@ -15,20 +15,48 @@ registradores = {"$zero": True, "$at": True, "$v0": True, "$v1": True, "$a0": Tr
                  "$t9": True, "$k0": True, "$k1": True, "$gp":True, "$sp": True,
                  "$fp": True, "$ra": True, "HI": True, "LO": True}
 
+def translate_line(line, instruction_type):
+    match(instruction_type):
+        case "atribuicao":
+            return (translate_att(line))
+        case "aritmetica":
+            return (translate_arithmetic(line))
+        case "if":
+            return (translate_if(line))
+        case "while":
+            return(translate_while(line))
+        case "goto":
+            return(translate_goto(line))
+        case "label":
+            return(translate_label(line))
 
 def decide_instruction(line):
+    
     # decide o que a linha representa
     type_of_operation = ""
+    linha = line.strip()
+
+    # Caso: If
+    if linha.startswith("if"):
+        type_of_operation = "if"
     
-    # !!mudanças
-    if any(op in line for op in ['+', '-', '*', '/']):
-            type_of_operation = "aritmetica"
+    # Caso: GOTO
+    elif linha.startswith("goto"):
+        type_of_operation = "goto"
+
+    # Caso: Label    
+    elif linha.endswith(":"):
+        type_of_operation = "label"
+
+    # Caso: Aritmética
+    elif any(op in linha for op in ['+', '-', '*', '/', '%']):
+        type_of_operation = "aritmetica"
     
-    # caso 1: atribuição
-    elif line.find("=") != -1:
+    # Caso: Atribuição
+    elif linha.find("=") != -1:
         type_of_operation = "atribuicao"
 
-    #return o que ela é intruction_type ex: att,contidional
+    # Retorna o tipo de operação
     return type_of_operation
 
 
@@ -73,7 +101,7 @@ def translate_arithmetic(line):
             break
 
     # Encontrar outro registrador (i+1 pra evitar o mesmo)
-    for j in range(i + 1, 8):
+    for j in range(0, 8):
         key2 = f"$t{j}"
         if registradores[key2] == True:
             registradores[key2] = False
@@ -117,21 +145,72 @@ def translate_arithmetic(line):
 
     return 1
 
-
-
-
-
+def translate_if(line):
+    # blablablabla
+    global traduzido
     
+    operadores = {
+        '>=': 'bge',
+        '<=': 'ble',
+        '==': 'beq',
+        '<':'blt',
+        '>': 'bgt',
+        '!=': 'bne',
+    }
 
+    # Encontrar um registrador (?)
+    for i in range(0, 8):
+        key1 = f"$t{i}"
+        if registradores[key1] == True:
+            registradores[key1] = False
+            break
 
+    for j in range(0, 8):
+        key2 = f"$t{j}"
+        if registradores[key2] == True:
+            registradores[key2] = False
+            break
 
-def translate_line(line, instruction_type):
-    match(instruction_type):
-        case "atribuicao":
-            return (translate_att(line))
-        case "aritmetica":
-            return (translate_arithmetic(line))
-    
+    # Dividir variável e resto da expressão 
+    quebrada = line.split()
+    esquerda = quebrada[1]
+    condicao = quebrada[2]
+    direita = quebrada[3]
+    label = quebrada[-1]
+
+    print(esquerda, condicao, direita, label)
+
+    if esquerda.isdigit():
+        traduzido += f"addi {key1}, $zero, {esquerda}\n"
+    else:
+        traduzido += f"lw {key1}, {esquerda}($zero)\n"
+
+    if direita.isdigit():
+        traduzido += f"addi {key2}, $zero, {direita}\n"
+    else:
+        traduzido += f"lw {key2}, {direita}($zero)\n"
+
+    traduzido += f"{operadores[condicao]} {key1}, {key2}, {label}\n"
+
+    # Liberar os regs
+    registradores[key1] = True
+    registradores[key2] = True
+
+    return 1
+
+def translate_goto(line):
+    global traduzido
+    quebrada = line.split()
+    label = quebrada[1]
+    traduzido += f"j {label}\n"
+
+def translate_label(line):
+    global traduzido
+    traduzido += f"{line}"
+    return 1
+
+# def translate_while(line)
+    # blablablabla
 
 def tres_enderecos_var_para_mips(cod_3_enderecos):
     global traduzido
@@ -204,6 +283,7 @@ def traduz(funcoes_achadas):
                 # verificar o que fazer com essa linha (o que ela é)
                 instruction = decide_instruction(line)
                 translate_line(line,instruction)
+        traduzido += "\nSYSCALL 0"
 
     
     return traduzido
@@ -251,9 +331,10 @@ if __name__ == "__main__":
     print(traducao)
     print()
 
-    with open('mips.txt', 'w') as file:
+
+    with open('mips-inferno.txt', 'w') as file:
         file.write(traducao)
-    print("Gravado no arquivo mips.txt")
+    print("Gravado no arquivo mips-inferno.txt")
     
 
 

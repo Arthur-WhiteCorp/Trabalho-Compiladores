@@ -1,11 +1,12 @@
-soma(){
+main(){
 int a
 int b
-int c
-T1 = 2 * 3
-T2 = T1 + 4
-T3 = T2 * 5
-T4 = T3 - 5
-a = T4 / 2
+a = 5
+b = 8
+if a != b goto L1
+goto L2
+L1:
+a = a + b
+L2:
 }
 
