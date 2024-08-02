@@ -1,4 +1,4 @@
 #!/bin/bash
 
 python main.py $1
-python mips.py output.txt
+python mips.py ./tac.txt

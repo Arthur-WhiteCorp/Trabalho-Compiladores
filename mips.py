@@ -332,9 +332,9 @@ if __name__ == "__main__":
     print()
 
 
-    with open('mips-inferno.txt', 'w') as file:
+    with open('./output/mips.txt', 'w') as file:
         file.write(traducao)
-    print("Gravado no arquivo mips-inferno.txt")
+    print("Gravado no arquivo output/mips.txt")
     
 
 

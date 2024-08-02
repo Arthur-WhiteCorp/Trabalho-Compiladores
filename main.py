@@ -5,6 +5,7 @@ Integrantes:
 Arthur Matias
 Bianka Vasconcelos
 Micael Viana
+Daniel Nunes
 
 Segue abaixo a main com a chamada do Eval Visitor para realizar a análise semântica e a representação intermediária.
 '''

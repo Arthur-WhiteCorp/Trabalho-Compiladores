@@ -5,6 +5,7 @@ Integrantes:
 Arthur Matias
 Bianka Vasconcelos
 Micael Viana
+Daniel Nunes
 
 Segue abaixo o Eval Visitor com a análise semântica e representação intermediária.
 '''
@@ -601,9 +602,9 @@ class EvalVisitor(MiniCVisitor):
       print("No semantic errors")
       print(self.translator.translation)
 
-      with open('output.txt', 'w') as file:
+      with open('./output/tac.txt', 'w') as file:
         file.write(self.translator.translation)
-      print("Gravado no arquivo output.txt")
+      print("Gravado no arquivo output/tac.txt")
         
       
 
