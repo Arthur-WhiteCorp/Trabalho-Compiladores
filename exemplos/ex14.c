@@ -1,11 +1,11 @@
 int main() {
     int a;
     int b;
-
+    int c;
     a = 5;
     b = 8;
-
-    if (a != b) {
+    c = a % 2;
+    if (c == 0) {
         a = a + b;
     }
 }

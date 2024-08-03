@@ -5,6 +5,7 @@ Integrantes:
 Arthur Matias
 Bianka Vasconcelos
 Micael Viana
+Daniel Nunes
 
 Segue abaixo a gramática do MiniC.
 */

@@ -15,7 +15,7 @@ import sys
 from antlr4 import *
 from MiniCLexer import MiniCLexer
 from MiniCParser import MiniCParser
-from EvalVisitor_arthur import EvalVisitor
+from EvalVisitor import EvalVisitor
 # Verifica se o usuário forneceu o nome do arquivo como argumento
 if len(sys.argv) != 2:
     print("Uso: python main.py nome_do_arquivo")

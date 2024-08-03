@@ -1,3 +1,11 @@
+'''
+Integrantes: 
+Arthur Matias
+Bianka Vasconcelos
+Micael Viana
+Daniel Nunes
+'''
+
 import sys
 import re
 
@@ -23,8 +31,6 @@ def translate_line(line, instruction_type):
             return (translate_arithmetic(line))
         case "if":
             return (translate_if(line))
-        case "while":
-            return(translate_while(line))
         case "goto":
             return(translate_goto(line))
         case "label":
@@ -90,7 +96,8 @@ def translate_arithmetic(line):
         '+': 'add',
         '-': 'sub',
         '*': 'mult',
-        '/': 'div'
+        '/': 'div',
+        '%': 'div' # Mod também usa div, só pega o resultado no outro registrador.
     }
 
     # Encontrar um registrador (?)
@@ -128,11 +135,15 @@ def translate_arithmetic(line):
             else:
                 traduzido += f"lw {key2}, {direita}($zero)\n"
 
-            # Executar a operação!!
+            # Executar a operação
             if op in ['*', '/']:
-                # Multiplicação e divisão usam registradores HI e LO
                 traduzido += f"{operadores[op]} {key1}, {key2}\n"
-                traduzido += f"mflo {key1}\n"
+                if op == '/':
+                    traduzido += f"mflo {key1}\n"
+            elif op == '%':
+                # Para a operação de módulo
+                traduzido += f"{operadores[op]} {key1}, {key2}\n"
+                traduzido += f"mfhi {key1}\n"
             else:
                 traduzido += f"{operadores[op]} {key1}, {key1}, {key2}\n"
 
@@ -146,32 +157,31 @@ def translate_arithmetic(line):
     return 1
 
 def translate_if(line):
-    # blablablabla
     global traduzido
     
     operadores = {
         '>=': 'bge',
         '<=': 'ble',
         '==': 'beq',
-        '<':'blt',
+        '<': 'blt',
         '>': 'bgt',
         '!=': 'bne',
     }
 
-    # Encontrar um registrador (?)
+    # Encontrar registradores disponíveis
     for i in range(0, 8):
         key1 = f"$t{i}"
-        if registradores[key1] == True:
+        if registradores[key1]:
             registradores[key1] = False
             break
 
     for j in range(0, 8):
         key2 = f"$t{j}"
-        if registradores[key2] == True:
+        if registradores[key2]:
             registradores[key2] = False
             break
 
-    # Dividir variável e resto da expressão 
+    # Dividir variável e resto da expressão
     quebrada = line.split()
     esquerda = quebrada[1]
     condicao = quebrada[2]
@@ -190,7 +200,20 @@ def translate_if(line):
     else:
         traduzido += f"lw {key2}, {direita}($zero)\n"
 
-    traduzido += f"{operadores[condicao]} {key1}, {key2}, {label}\n"
+    if condicao == '>=':
+        traduzido += f"slt {key1}, {key1}, {key2}\n"
+        traduzido += f"beq {key1}, $zero, {label}\n"
+    elif condicao == '<=':
+        traduzido += f"slt {key1}, {key2}, {key1}\n"
+        traduzido += f"beq {key1}, $zero, {label}\n"
+    elif condicao == '<':
+        traduzido += f"slt {key1}, {key1}, {key2}\n"
+        traduzido += f"bne {key1}, $zero, {label}\n"
+    elif condicao == '>':
+        traduzido += f"slt {key1}, {key2}, {key1}\n"
+        traduzido += f"bne {key1}, $zero, {label}\n"
+    else:
+        traduzido += f"{operadores[condicao]} {key1}, {key2}, {label}\n"
 
     # Liberar os regs
     registradores[key1] = True
@@ -208,9 +231,6 @@ def translate_label(line):
     global traduzido
     traduzido += f"{line}"
     return 1
-
-# def translate_while(line)
-    # blablablabla
 
 def tres_enderecos_var_para_mips(cod_3_enderecos):
     global traduzido

@@ -82,3 +82,11 @@ chmod +x run.sh
 ```
 
 Com isso o código será gerado e colocado na pasta output. O código mips.txt é o que pode ser usado no EduMips64.
+
+## Integrantes da equipe
+
+Integrantes:
+Arthur Matias
+Bianka Vasconcelos
+Micael Viana
+Daniel Nunes
